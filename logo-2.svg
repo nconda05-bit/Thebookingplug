@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1DDB7E"/>
+      <stop offset="100%" stop-color="#00A854"/>
+    </linearGradient>
+    <linearGradient id="plugGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#D8D8D8"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- App icon background -->
+  <rect width="500" height="500" rx="115" ry="115" fill="#080808"/>
+  <rect width="500" height="500" rx="115" ry="115" fill="none" stroke="#1DDB7E" stroke-width="1.5" stroke-opacity="0.2"/>
+
+  <!-- Green ambient glow behind plug -->
+  <ellipse cx="250" cy="265" rx="130" ry="110" fill="#1DDB7E" opacity="0.07" filter="url(#softglow)"/>
+
+  <!-- ── PLUG ── perfectly centered and proportioned -->
+
+  <!-- LEFT PRONG — perfectly vertical, centered -->
+  <rect x="192" y="128" width="38" height="82" rx="19" fill="url(#plugGrad)"/>
+
+  <!-- RIGHT PRONG — mirror of left -->
+  <rect x="270" y="128" width="38" height="82" rx="19" fill="url(#plugGrad)"/>
+
+  <!-- PLUG BODY — wide centered rectangle -->
+  <rect x="158" y="200" width="184" height="130" rx="28" fill="url(#plugGrad)"/>
+
+  <!-- CORD — centered under body -->
+  <rect x="221" y="328" width="58" height="58" rx="20" fill="url(#plugGrad)"/>
+  <rect x="221" y="355" width="58" height="32" fill="url(#plugGrad)"/>
+
+  <!-- GREEN EYES — perfectly symmetrical -->
+  <circle cx="211" cy="268" r="18" fill="url(#greenGrad)" filter="url(#glow)"/>
+  <circle cx="289" cy="268" r="18" fill="url(#greenGrad)" filter="url(#glow)"/>
+
+  <!-- Inner eye shine -->
+  <circle cx="207" cy="263" r="5" fill="white" opacity="0.4"/>
+  <circle cx="285" cy="263" r="5" fill="white" opacity="0.4"/>
+
+  <!-- GREEN LIGHTNING BOLT — centered on plug body -->
+  <path d="M262 218 L240 268 L253 268 L238 318 L272 260 L257 260 Z"
+        fill="url(#greenGrad)" filter="url(#glow)"/>
+
+  <!-- Green glow at prong tips -->
+  <ellipse cx="211" cy="134" rx="12" ry="7" fill="#1DDB7E" opacity="0.6" filter="url(#glow)"/>
+  <ellipse cx="289" cy="134" rx="12" ry="7" fill="#1DDB7E" opacity="0.6" filter="url(#glow)"/>
+
+  <!-- Green dot at cord tip -->
+  <circle cx="250" cy="383" r="9" fill="#1DDB7E" opacity="0.5" filter="url(#glow)"/>
+</svg>
