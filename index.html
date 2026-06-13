@@ -69,6 +69,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .btn-white:hover{background:var(--off);}
 .btn-sm{padding:9px 18px;font-size:13px;border-radius:10px;}
 .btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{background:#dc2626;}
+.btn-xs{padding:5px 10px;font-size:12px;border-radius:8px;}
 
 /* HERO */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 24px 80px;position:relative;overflow:hidden;background:var(--bg);}
@@ -157,7 +159,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .price-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:36px 28px;transition:all 0.25s;}
 .price-card:hover{transform:translateY(-4px);}
 .price-card.hot{border-color:var(--green);background:linear-gradient(180deg,rgba(29,219,126,0.07) 0%,var(--card) 100%);position:relative;}
+.price-card.soon{border-color:var(--border);opacity:0.7;cursor:default;}
+.price-card.soon:hover{transform:none;}
 .hot-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-size:11px;font-weight:800;padding:5px 16px;border-radius:100px;white-space:nowrap;letter-spacing:0.5px;text-transform:uppercase;}
+.soon-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--border);color:var(--muted);font-size:11px;font-weight:800;padding:5px 16px;border-radius:100px;white-space:nowrap;letter-spacing:0.5px;text-transform:uppercase;}
 .trial-badge{display:inline-flex;align-items:center;gap:6px;background:var(--purple-soft);border:1px solid var(--purple-border);color:var(--purple);font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:16px;}
 .price-name{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:12px;}
 .price-amt{font-family:'Syne',sans-serif;font-size:58px;font-weight:800;color:var(--white);line-height:1;letter-spacing:-2px;margin-bottom:4px;}
@@ -230,6 +235,18 @@ tr:hover td{background:rgba(255,255,255,0.015);}
 .tag-red{background:rgba(239,68,68,0.1);color:var(--danger);}
 .tag-purple{background:var(--purple-soft);color:var(--purple);}
 .tag-blue{background:rgba(59,130,246,0.1);color:var(--blue);}
+
+/* NEW LEAD ALERT */
+.lead-new td{background:rgba(245,158,11,0.04);}
+.lead-new td:first-child{border-left:3px solid var(--yellow);}
+
+/* ACTION BUTTONS IN TABLE */
+.action-btns{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* NOTE INLINE */
+.note-text{font-size:12px;color:var(--muted);font-style:italic;margin-top:4px;max-width:200px;}
+.note-input{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--white);font-size:12px;width:100%;font-family:'Plus Jakarta Sans',sans-serif;}
+.note-input:focus{outline:none;border-color:var(--green);}
 
 /* LOGIN MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;}
@@ -466,13 +483,21 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <ul class="price-list"><li><span class="ck">✓</span> Everything in Starter</li><li><span class="ck">✓</span> Unlimited bookings</li><li><span class="ck">✓</span> NFC tags included 🏷️</li><li><span class="ck">✓</span> Lead generation system</li><li><span class="ck">✓</span> Instagram & WhatsApp</li><li><span class="ck">✓</span> Revenue analytics</li><li><span class="ck">✓</span> Priority support 💬</li></ul>
       <a href="https://buy.stripe.com/6oU6oH3Gjazy2K6eBpds40" target="_blank" class="btn btn-green" style="width:100%;">Start Free Trial →</a>
     </div>
-    <div class="price-card">
-      <div class="trial-badge">🎁 7-day free trial</div>
+    <div class="price-card soon" style="position:relative;">
+      <div class="soon-badge">🔒 Coming Soon</div>
+      <div class="trial-badge" style="background:rgba(255,255,255,0.05);border-color:var(--border);color:var(--muted);">More power incoming</div>
       <div class="price-name">💎 Pro</div>
-      <div class="price-amt"><sup>$</sup>197<sub>/mo</sub></div>
-      <div class="price-desc">Full white-glove service for established shops ready to dominate.</div>
-      <ul class="price-list"><li><span class="ck">✓</span> Everything in Growth</li><li><span class="ck">✓</span> Multi-location support</li><li><span class="ck">✓</span> Custom branding</li><li><span class="ck">✓</span> Revenue analytics dashboard</li><li><span class="ck">✓</span> Priority support</li><li><span class="ck">✓</span> API access</li><li><span class="ck">✓</span> Done-for-you setup ✅</li></ul>
-      <a href="https://buy.stripe.com/9B66oHb8L0YY0BYcthds403" target="_blank" class="btn btn-outline" style="width:100%;">Start Free Trial →</a>
+      <div class="price-amt" style="color:var(--muted);">$???<sub style="font-size:16px;">/mo</sub></div>
+      <div class="price-desc">The full suite — multi-location, white-label, and done-for-you setup. Coming soon.</div>
+      <ul class="price-list">
+        <li><span class="ck" style="color:var(--muted);">○</span> Everything in Growth</li>
+        <li><span class="ck" style="color:var(--muted);">○</span> Multi-location support</li>
+        <li><span class="ck" style="color:var(--muted);">○</span> White-label branding</li>
+        <li><span class="ck" style="color:var(--muted);">○</span> Done-for-you setup</li>
+        <li><span class="ck" style="color:var(--muted);">○</span> Dedicated account manager</li>
+        <li><span class="ck" style="color:var(--muted);">○</span> API access</li>
+      </ul>
+      <a href="#consultation" class="btn btn-outline" style="width:100%;opacity:0.5;pointer-events:none;">Notify Me →</a>
     </div>
   </div>
   <p style="text-align:center;margin-top:24px;font-size:14px;color:var(--muted);">Need a custom plan for multiple locations? <a href="#consultation" style="color:var(--green);">Contact us →</a></p>
@@ -551,32 +576,48 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <div class="stat-box"><div class="slabel">🏢 Clients</div><div class="sval gv" id="s-clients">—</div></div>
       <div class="stat-box"><div class="slabel">📅 Bookings</div><div class="sval bv" id="s-bookings">—</div></div>
       <div class="stat-box"><div class="slabel">📋 Leads</div><div class="sval pv" id="s-leads">—</div></div>
-      <div class="stat-box"><div class="slabel">⏳ Pending</div><div class="sval ov" id="s-pending">—</div></div>
+      <div class="stat-box"><div class="slabel">🔔 New Leads</div><div class="sval ov" id="s-pending">—</div></div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="aTab('clients',this)">🏢 Clients</button>
       <button class="tab" onclick="aTab('bookings',this)">📅 Bookings</button>
       <button class="tab" onclick="aTab('leads',this)">📋 Leads</button>
     </div>
+
+    <!-- CLIENTS TAB -->
     <div id="at-clients" class="tc on">
       <div class="dtable">
         <div class="dtable-head"><h3>All Clients</h3><button class="btn btn-sm btn-green" onclick="openAddClientModal()">+ Add Client</button></div>
-        <table><thead><tr><th>Business</th><th>Type</th><th>Owner & Contact</th><th>Plan</th><th>Status</th></tr></thead>
-        <tbody id="t-clients"><tr><td colspan="5"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <table><thead><tr><th>Business</th><th>Type</th><th>Owner & Contact</th><th>Plan</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="t-clients"><tr><td colspan="6"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
       </div>
     </div>
+
+    <!-- BOOKINGS TAB -->
     <div id="at-bookings" class="tc">
       <div class="dtable">
-        <div class="dtable-head"><h3>All Bookings</h3></div>
-        <table><thead><tr><th>Customer</th><th>Service</th><th>Date & Time</th><th>Status</th><th>Payment</th></tr></thead>
-        <tbody id="t-bookings"><tr><td colspan="5"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <div class="dtable-head">
+          <h3>All Bookings</h3>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="filter-status" onchange="filterBookings()" style="padding:8px 12px;font-size:13px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--white);width:auto;">
+              <option value="">All Statuses</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="pending">Pending</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <table><thead><tr><th>Customer</th><th>Service</th><th>Date & Time</th><th>Status</th><th>Payment</th><th>Note</th><th>Actions</th></tr></thead>
+        <tbody id="t-bookings"><tr><td colspan="7"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
       </div>
     </div>
+
+    <!-- LEADS TAB -->
     <div id="at-leads" class="tc">
       <div class="dtable">
         <div class="dtable-head"><h3>All Leads</h3></div>
-        <table><thead><tr><th>Name</th><th>Business</th><th>Type</th><th>Email / Phone</th><th>Status</th></tr></thead>
-        <tbody id="t-leads"><tr><td colspan="5"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <table><thead><tr><th>Name</th><th>Business</th><th>Type</th><th>Email / Phone</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="t-leads"><tr><td colspan="6"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
       </div>
     </div>
   </div>
@@ -624,8 +665,8 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <div id="ct-bk" class="tc on">
       <div class="dtable">
         <div class="dtable-head"><h3>Your Bookings</h3></div>
-        <table><thead><tr><th>Customer</th><th>Service</th><th>Date & Time</th><th>Status</th></tr></thead>
-        <tbody id="c-bk-body"><tr><td colspan="4"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <table><thead><tr><th>Customer</th><th>Service</th><th>Date & Time</th><th>Status</th><th>Contact</th><th>Actions</th></tr></thead>
+        <tbody id="c-bk-body"><tr><td colspan="6"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
       </div>
     </div>
     <div id="ct-ld" class="tc">
@@ -673,7 +714,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <div class="frow">
       <div class="fgroup"><label>Phone</label><input type="tel" id="n-phone" placeholder="(555) 000-0000"></div>
       <div class="fgroup"><label>Plan</label>
-        <select id="n-plan"><option>Starter - $47/mo</option><option>Growth - $97/mo</option><option>Pro - $197/mo</option></select>
+        <select id="n-plan"><option>Starter - $47/mo</option><option>Growth - $97/mo</option></select>
       </div>
     </div>
     <div class="fgroup"><label>Temporary Password (send to client)</label><input type="text" id="n-pass" placeholder="Auto-generated"></div>
@@ -702,6 +743,9 @@ const sb = createClient(
 );
 const ADMIN_EMAIL = 'nconda05@gmail.com';
 const WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/ea22885d-d312-4eb7-ac55-d9e832d9a3f4';
+
+// ── CACHE ALL BOOKINGS FOR FILTER ──
+let allBookings = [];
 
 // ── VIEWS ──
 function showView(v){
@@ -751,41 +795,145 @@ async function loadAdminView(user){
     sb.from('leads').select('*').order('created_at',{ascending:false})
   ]);
 
-  const pending = (leads||[]).filter(l=>l.status==='new').length;
+  allBookings = bookings || [];
+  const newLeads = (leads||[]).filter(l=>l.status==='new').length;
   document.getElementById('s-clients').textContent  = (clients||[]).length;
-  document.getElementById('s-bookings').textContent = (bookings||[]).length;
+  document.getElementById('s-bookings').textContent = allBookings.length;
   document.getElementById('s-leads').textContent    = (leads||[]).length;
-  document.getElementById('s-pending').textContent  = pending;
+  document.getElementById('s-pending').textContent  = newLeads;
 
-  // Clients table
+  renderClientsTable(clients||[]);
+  renderBookingsTable(allBookings);
+  renderLeadsTable(leads||[]);
+}
+
+function renderClientsTable(clients){
   const ct = document.getElementById('t-clients');
-  ct.innerHTML = (clients||[]).length ? (clients||[]).map(c=>`<tr>
+  ct.innerHTML = clients.length ? clients.map(c=>`<tr>
     <td><strong style="color:var(--white)">${c.business_name||'—'}</strong></td>
     <td><span class="tag tag-blue">${c.business_type||'—'}</span></td>
-    <td>${c.owner_name||'—'}<br><span style="color:var(--muted);font-size:12px;">${c.email||'—'}</span></td>
+    <td>${c.owner_name||'—'}<br><span style="color:var(--muted);font-size:12px;">${c.email||'—'} · ${c.phone||'—'}</span></td>
     <td>${c.plan||'—'}</td>
     <td><span class="tag ${c.status==='active'?'tag-green':'tag-yellow'}">${c.status||'pending'}</span></td>
-  </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px;">No clients yet. Hit "+ Add Client" to get started! 🚀</td></tr>';
+    <td>
+      <div class="action-btns">
+        ${c.email ? `<a href="mailto:${c.email}" class="btn btn-xs btn-outline" title="Email client">✉️</a>` : ''}
+        ${c.phone ? `<a href="tel:${c.phone}" class="btn btn-xs btn-outline" title="Call client">📞</a>` : ''}
+      </div>
+    </td>
+  </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No clients yet. Hit "+ Add Client" to get started! 🚀</td></tr>';
+}
 
-  // Bookings table
+function renderBookingsTable(bookings){
   const bt = document.getElementById('t-bookings');
-  bt.innerHTML = (bookings||[]).length ? (bookings||[]).map(b=>`<tr>
-    <td><strong style="color:var(--white)">${b.customer_name||'—'}</strong><br><span style="color:var(--muted);font-size:12px;">${b.customer_phone||'—'}</span></td>
+  bt.innerHTML = bookings.length ? bookings.map(b=>`<tr id="brow-${b.id}">
+    <td>
+      <strong style="color:var(--white)">${b.customer_name||'—'}</strong>
+      <br><span style="color:var(--muted);font-size:12px;">${b.customer_phone||'—'}</span>
+    </td>
     <td>${b.service||'—'}</td>
     <td>${b.appointment_date||'—'} at ${b.appointment_time||'—'}</td>
-    <td><span class="tag ${b.status==='confirmed'?'tag-green':b.status==='cancelled'?'tag-red':'tag-yellow'}">${b.status||'pending'}</span></td>
-    <td><span class="tag ${b.payment_status==='paid'?'tag-green':'tag-yellow'}">${b.payment_status||'unpaid'}</span></td>
-  </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px;">No bookings yet 📅</td></tr>';
+    <td>
+      <select onchange="updateBookingStatus('${b.id}', this.value)" style="padding:4px 8px;font-size:12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--white);">
+        <option value="confirmed" ${b.status==='confirmed'?'selected':''}>✅ Confirmed</option>
+        <option value="pending" ${b.status==='pending'?'selected':''}>⏳ Pending</option>
+        <option value="cancelled" ${b.status==='cancelled'?'selected':''}>❌ Cancelled</option>
+      </select>
+    </td>
+    <td>
+      <button onclick="togglePayment('${b.id}','${b.payment_status||'unpaid'}')" class="tag ${b.payment_status==='paid'?'tag-green':'tag-yellow'}" style="cursor:pointer;border:none;font-family:inherit;">
+        ${b.payment_status==='paid'?'💰 Paid':'⏳ Unpaid'}
+      </button>
+    </td>
+    <td>
+      <div id="note-area-${b.id}">
+        ${b.notes ? `<div class="note-text" onclick="editNote('${b.id}','${(b.notes||'').replace(/'/g,"\\'")}')">📝 ${b.notes}</div>` : `<button onclick="editNote('${b.id}','')" class="btn btn-xs btn-outline">+ Note</button>`}
+      </div>
+    </td>
+    <td>
+      <div class="action-btns">
+        ${b.customer_phone ? `<a href="tel:${b.customer_phone}" class="btn btn-xs btn-outline" title="Call customer">📞</a>` : ''}
+        ${b.customer_phone ? `<a href="sms:${b.customer_phone}" class="btn btn-xs btn-outline" title="Text customer">💬</a>` : ''}
+        <button onclick="deleteBooking('${b.id}')" class="btn btn-xs btn-danger" title="Delete booking">🗑️</button>
+      </div>
+    </td>
+  </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px;">No bookings yet 📅</td></tr>';
+}
 
-  // Leads table
+function renderLeadsTable(leads){
   const lt = document.getElementById('t-leads');
-  lt.innerHTML = (leads||[]).length ? (leads||[]).map(l=>`<tr>
-    <td><strong style="color:var(--white)">${l.owner_name||'—'}</strong></td>
+  lt.innerHTML = leads.length ? leads.map(l=>`<tr class="${l.status==='new'?'lead-new':''}">
+    <td><strong style="color:var(--white)">${l.owner_name||'—'}</strong>${l.status==='new'?'<span class="tag tag-yellow" style="margin-left:8px;font-size:10px;">NEW 🔔</span>':''}</td>
     <td>${l.business_name||'—'}</td>
     <td><span class="tag tag-purple">${l.business_type||'—'}</span></td>
     <td>${l.email||'—'}<br><span style="color:var(--muted);font-size:12px;">${l.phone||'—'}</span></td>
     <td><span class="tag ${l.status==='converted'?'tag-green':l.status==='new'?'tag-yellow':'tag-red'}">${l.status||'new'}</span></td>
-  </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px;">No leads yet 📣</td></tr>';
+    <td>
+      <div class="action-btns">
+        ${l.email ? `<a href="mailto:${l.email}" class="btn btn-xs btn-outline" title="Email lead">✉️</a>` : ''}
+        ${l.phone ? `<a href="tel:${l.phone}" class="btn btn-xs btn-outline" title="Call lead">📞</a>` : ''}
+        <button onclick="convertLead('${l.id}')" class="btn btn-xs btn-green" title="Mark converted">✅</button>
+      </div>
+    </td>
+  </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No leads yet 📣</td></tr>';
+}
+
+// ── FILTER BOOKINGS ──
+function filterBookings(){
+  const val = document.getElementById('filter-status').value;
+  const filtered = val ? allBookings.filter(b=>b.status===val) : allBookings;
+  renderBookingsTable(filtered);
+}
+
+// ── DELETE BOOKING ──
+async function deleteBooking(id){
+  if(!confirm('Delete this booking? This cannot be undone.')) return;
+  const { error } = await sb.from('bookings').delete().eq('id', id);
+  if(error){ alert('❌ Could not delete: '+error.message); return; }
+  allBookings = allBookings.filter(b=>String(b.id)!==String(id));
+  document.getElementById('s-bookings').textContent = allBookings.length;
+  renderBookingsTable(allBookings);
+}
+
+// ── UPDATE BOOKING STATUS ──
+async function updateBookingStatus(id, status){
+  const { error } = await sb.from('bookings').update({ status }).eq('id', id);
+  if(error){ alert('❌ Could not update: '+error.message); }
+  else {
+    allBookings = allBookings.map(b=>String(b.id)===String(id)?{...b,status}:b);
+  }
+}
+
+// ── TOGGLE PAYMENT ──
+async function togglePayment(id, current){
+  const newStatus = current==='paid' ? 'unpaid' : 'paid';
+  const { error } = await sb.from('bookings').update({ payment_status: newStatus }).eq('id', id);
+  if(error){ alert('❌ Could not update payment: '+error.message); return; }
+  allBookings = allBookings.map(b=>String(b.id)===String(id)?{...b,payment_status:newStatus}:b);
+  renderBookingsTable(allBookings);
+}
+
+// ── NOTES ──
+function editNote(id, current){
+  const area = document.getElementById('note-area-'+id);
+  area.innerHTML = `<input class="note-input" id="note-inp-${id}" value="${current}" placeholder="Add a note..." onblur="saveNote('${id}')" onkeydown="if(event.key==='Enter')saveNote('${id}')">`;
+  document.getElementById('note-inp-'+id).focus();
+}
+
+async function saveNote(id){
+  const val = (document.getElementById('note-inp-'+id)||{}).value||'';
+  const { error } = await sb.from('bookings').update({ notes: val }).eq('id', id);
+  if(error){ alert('❌ Could not save note'); return; }
+  allBookings = allBookings.map(b=>String(b.id)===String(id)?{...b,notes:val}:b);
+  const area = document.getElementById('note-area-'+id);
+  area.innerHTML = val ? `<div class="note-text" onclick="editNote('${id}','${val.replace(/'/g,"\\'")}')">📝 ${val}</div>` : `<button onclick="editNote('${id}','')" class="btn btn-xs btn-outline">+ Note</button>`;
+}
+
+// ── CONVERT LEAD ──
+async function convertLead(id){
+  const { error } = await sb.from('leads').update({ status: 'converted' }).eq('id', id);
+  if(error){ alert('❌ Could not update lead'); return; }
+  loadAdminView({ email: ADMIN_EMAIL });
 }
 
 function aTab(id,btn){
@@ -815,10 +963,8 @@ async function addClient(){
   if(!biz||!owner||!email||!pass){ showModalMsg(msg,'⚠️ Fill in business name, owner, email and password.','error'); return; }
   showModalMsg(msg,'Creating client account...','');
 
-  // Create auth account for client
   await sb.auth.signUp({ email, password: pass });
 
-  // Save to clients table
   const { error } = await sb.from('clients').insert([{
     business_name: biz, business_type: type, owner_name: owner,
     email, phone, plan, status: 'active'
@@ -866,13 +1012,32 @@ async function loadClientView(user){
     <td>${b.service||'—'}</td>
     <td>${b.appointment_date||'—'} at ${b.appointment_time||'—'}</td>
     <td><span class="tag ${b.status==='confirmed'?'tag-green':b.status==='cancelled'?'tag-red':'tag-yellow'}">${b.status||'pending'}</span></td>
-  </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:40px;">No bookings yet! Share your QR code 🚀</td></tr>';
+    <td>
+      <div class="action-btns">
+        ${b.customer_phone ? `<a href="tel:${b.customer_phone}" class="btn btn-xs btn-outline">📞 Call</a>` : '—'}
+        ${b.customer_phone ? `<a href="sms:${b.customer_phone}" class="btn btn-xs btn-outline">💬 Text</a>` : ''}
+      </div>
+    </td>
+    <td>
+      ${b.status!=='cancelled' ? `<button onclick="clientCancelBooking('${b.id}',this)" class="btn btn-xs btn-danger">Cancel</button>` : '<span style="color:var(--muted);font-size:12px;">Cancelled</span>'}
+    </td>
+  </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No bookings yet! Share your QR code 🚀</td></tr>';
 
   const lb = document.getElementById('c-ld-body');
   lb.innerHTML = (leads||[]).length ? (leads||[]).map(l=>`<tr>
     <td>${l.owner_name||'—'}</td><td>${l.email||'—'}</td>
     <td>${l.phone||'—'}</td><td style="color:var(--muted);font-size:13px;">${l.message||'—'}</td>
   </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:40px;">No leads yet 📋</td></tr>';
+}
+
+// ── CLIENT CANCEL BOOKING ──
+async function clientCancelBooking(id, btn){
+  if(!confirm('Cancel this booking? The shop will be notified.')) return;
+  const { error } = await sb.from('bookings').update({ status: 'cancelled' }).eq('id', id);
+  if(error){ alert('❌ Could not cancel: '+error.message); return; }
+  btn.closest('tr').querySelector('.tag').className='tag tag-red';
+  btn.closest('tr').querySelector('.tag').textContent='cancelled';
+  btn.outerHTML='<span style="color:var(--muted);font-size:12px;">Cancelled</span>';
 }
 
 function cTab(id,btn){
@@ -883,7 +1048,7 @@ function cTab(id,btn){
 
 function downloadQR(){ const a=document.createElement('a'); a.href=document.getElementById('qr-img').src; a.download='booking-qr.png'; a.click(); }
 
-// ── CONSULTATION FORM → SUPABASE ──
+// ── CONSULTATION FORM ──
 async function submitConsult(){
   const biz    = document.getElementById('c-biz').value.trim();
   const name   = document.getElementById('c-name').value.trim();
