@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://thebookingplug.net">
 <meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
 <style>
 :root {
   --bg: #080808;
@@ -369,6 +369,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
   #qr-grid{grid-template-columns:1fr!important;}
   .hero-btns{flex-direction:column;align-items:stretch;}
   body{overflow-x:hidden;}
+  .mobile-login-btn{display:block!important;}
 }
 </style>
 </head>
@@ -389,6 +390,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <a href="#" onclick="event.preventDefault();openLoginModal();" style="color:var(--muted);">Client Login</a>
     <a href="#pricing" class="btn btn-sm nav-btn">Start Free Trial →</a>
   </div>
+  <button onclick="openLoginModal()" style="display:none;background:transparent;border:1px solid var(--border);color:var(--light);padding:8px 16px;border-radius:10px;font-family:Plus Jakarta Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer;" class="mobile-login-btn">Login</button>
 </nav>
 
 <!-- HERO -->
