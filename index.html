@@ -372,6 +372,22 @@ tr:hover td{background:rgba(255,255,255,0.015);}
   body{overflow-x:hidden;}
   .mobile-login-btn{display:block!important;}
 }
+
+/* ── MOBILE CARDS ── */
+.m-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
+.m-card-new{border-color:rgba(234,179,8,0.4);background:rgba(234,179,8,0.04);}
+.m-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:10px;}
+.m-card-title{font-size:15px;font-weight:700;color:var(--white);margin-bottom:2px;}
+.m-card-sub{font-size:12px;color:var(--muted);}
+.m-card-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);gap:10px;}
+.m-card-row:last-of-type{border-bottom:none;}
+.m-label{font-size:12px;color:var(--muted);font-weight:600;flex-shrink:0;}
+.m-val{font-size:13px;color:var(--light);text-align:right;}
+.m-card-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.m-card-actions .btn{flex:1;min-width:80px;text-align:center;font-size:12px;padding:8px 10px;}
+.dtable{background:transparent;border:none;box-shadow:none;padding:0;}
+.dtable-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.dtable-head h3{font-size:16px;font-weight:700;color:var(--white);margin:0;}
 </style>
 </head>
 <body>
@@ -815,8 +831,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <div id="at-clients" class="tc on">
       <div class="dtable">
         <div class="dtable-head"><h3>All Clients</h3><button class="btn btn-sm btn-green" onclick="openAddClientModal()">+ Add Client</button></div>
-        <table><thead><tr><th>Business</th><th>Type</th><th>Owner & Contact</th><th>Plan</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="t-clients"><tr><td colspan="6"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <div id="t-clients"><div class="loading"><div class="spin"></div> Loading...</div></div>
       </div>
     </div>
     <div id="at-bookings" class="tc">
@@ -829,15 +844,13 @@ tr:hover td{background:rgba(255,255,255,0.015);}
             <button onclick="deleteSelectedBookings()" class="btn btn-danger" style="font-size:13px;padding:8px 14px;">🗑️ Delete Selected</button>
           </div>
         </div>
-        <table><thead><tr><th style="width:36px;"><input type="checkbox" id="select-all-cb" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;"></th><th>Customer</th><th>Service</th><th>Date & Time</th><th>Status</th><th>Payment</th><th>Note</th><th>Actions</th></tr></thead>
-        <tbody id="t-bookings"><tr><td colspan="8"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><input type="checkbox" id="select-all-cb" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer;"><span style="font-size:13px;color:var(--muted);">Select all</span></div><div id="t-bookings"><div class="loading"><div class="spin"></div> Loading...</div></div>
       </div>
     </div>
     <div id="at-leads" class="tc">
       <div class="dtable">
         <div class="dtable-head"><h3>All Leads</h3></div>
-        <table><thead><tr><th>Name</th><th>Business</th><th>Type</th><th>Email / Phone</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="t-leads"><tr><td colspan="6"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <div id="t-leads"><div class="loading"><div class="spin"></div> Loading...</div></div>
       </div>
     </div>
   </div>
@@ -871,14 +884,12 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     </div>
     <div id="ct-bk" class="tc on">
       <div class="dtable"><div class="dtable-head"><h3>Your Bookings</h3></div>
-        <table><thead><tr><th>Customer</th><th>Service</th><th>Date & Time</th><th>Status</th><th>Contact</th><th>Actions</th></tr></thead>
-        <tbody id="c-bk-body"><tr><td colspan="6"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <div id="c-bk-body"><div class="loading"><div class="spin"></div> Loading...</div></div>
       </div>
     </div>
     <div id="ct-ld" class="tc">
       <div class="dtable"><div class="dtable-head"><h3>Your Leads</h3></div>
-        <table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Message</th></tr></thead>
-        <tbody id="c-ld-body"><tr><td colspan="4"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <div id="c-ld-body"><div class="loading"><div class="spin"></div> Loading...</div></div>
       </div>
     </div>
   </div>
@@ -1175,14 +1186,27 @@ async function loadAdminView(user){
 }
 
 function renderClientsTable(clients){
-  document.getElementById('t-clients').innerHTML=clients.length?clients.map(c=>`<tr>
-    <td><strong style="color:var(--white)">${c.business_name||'—'}</strong></td>
-    <td><span class="tag tag-blue">${c.business_type||'—'}</span></td>
-    <td>${c.owner_name||'—'}<br><span style="color:var(--muted);font-size:12px;">${c.email||'—'} · ${c.phone||'—'}</span></td>
-    <td>${c.plan||'—'}</td>
-    <td><span class="tag ${c.status==='active'?'tag-green':'tag-yellow'}">${c.status||'pending'}</span></td>
-    <td><div class="action-btns">${c.email?`<a href="mailto:${c.email}" class="btn btn-xs btn-outline">✉️</a>`:''}<button onclick="deleteClient('${c.id}','${c.email}')" class="btn btn-xs btn-danger">🗑️</button></div></td>
-  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No clients yet 🚀</td></tr>';
+  const el=document.getElementById('t-clients');
+  if(!clients.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">No clients yet 🚀</div>';return;}
+  el.innerHTML=clients.map(c=>`
+    <div class="m-card">
+      <div class="m-card-top">
+        <div>
+          <div class="m-card-title">${c.business_name||'—'}</div>
+          <div class="m-card-sub">${c.owner_name||'—'}</div>
+        </div>
+        <span class="tag ${c.status==='active'?'tag-green':'tag-yellow'}">${c.status||'pending'}</span>
+      </div>
+      <div class="m-card-row"><span class="m-label">Type</span><span class="tag tag-blue" style="font-size:11px;">${c.business_type||'—'}</span></div>
+      <div class="m-card-row"><span class="m-label">Plan</span><span class="m-val">${c.plan||'—'}</span></div>
+      <div class="m-card-row"><span class="m-label">Email</span><span class="m-val" style="font-size:12px;">${c.email||'—'}</span></div>
+      <div class="m-card-row"><span class="m-label">Phone</span><span class="m-val">${c.phone||'—'}</span></div>
+      <div class="m-card-actions">
+        ${c.email?`<a href="mailto:${c.email}" class="btn btn-sm btn-outline">✉️ Email</a>`:''}
+        ${c.phone?`<a href="tel:${c.phone}" class="btn btn-sm btn-outline">📞 Call</a>`:''}
+        <button onclick="deleteClient('${c.id}','${c.email}')" class="btn btn-sm btn-danger">🗑️ Delete</button>
+      </div>
+    </div>`).join('');
 }
 
 function renderBookingsTable(bookings){
@@ -1202,14 +1226,26 @@ function renderBookingsTable(bookings){
 }
 
 function renderLeadsTable(leads){
-  document.getElementById('t-leads').innerHTML=leads.length?leads.map(l=>`<tr class="${l.status==='new'?'lead-new':''}">
-    <td><strong style="color:var(--white)">${l.owner_name||'—'}</strong>${l.status==='new'?'<span class="tag tag-yellow" style="margin-left:8px;font-size:10px;">NEW 🔔</span>':''}</td>
-    <td>${l.business_name||'—'}</td>
-    <td><span class="tag tag-purple">${l.business_type||'—'}</span></td>
-    <td>${l.email||'—'}<br><span style="color:var(--muted);font-size:12px;">${l.phone||'—'}</span></td>
-    <td><span class="tag ${l.status==='converted'?'tag-green':l.status==='new'?'tag-yellow':'tag-red'}">${l.status||'new'}</span></td>
-    <td><div class="action-btns">${l.email?`<a href="mailto:${l.email}" class="btn btn-xs btn-outline">✉️</a>`:''}<button onclick="convertLead('${l.id}')" class="btn btn-xs btn-green">✅</button></div></td>
-  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No leads yet 📣</td></tr>';
+  const el=document.getElementById('t-leads');
+  if(!leads.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">No leads yet 📣</div>';return;}
+  el.innerHTML=leads.map(l=>`
+    <div class="m-card ${l.status==='new'?'m-card-new':''}">
+      <div class="m-card-top">
+        <div>
+          <div class="m-card-title">${l.owner_name||'—'} ${l.status==='new'?'<span class="tag tag-yellow" style="font-size:10px;">NEW 🔔</span>':''}</div>
+          <div class="m-card-sub">${l.business_name||'—'}</div>
+        </div>
+        <span class="tag ${l.status==='converted'?'tag-green':l.status==='new'?'tag-yellow':'tag-red'}">${l.status||'new'}</span>
+      </div>
+      <div class="m-card-row"><span class="m-label">Type</span><span class="tag tag-purple" style="font-size:11px;">${l.business_type||'—'}</span></div>
+      <div class="m-card-row"><span class="m-label">Email</span><span class="m-val" style="font-size:12px;">${l.email||'—'}</span></div>
+      <div class="m-card-row"><span class="m-label">Phone</span><span class="m-val">${l.phone||'—'}</span></div>
+      <div class="m-card-actions">
+        ${l.email?`<a href="mailto:${l.email}" class="btn btn-sm btn-outline">✉️ Email</a>`:''}
+        ${l.phone?`<a href="tel:${l.phone}" class="btn btn-sm btn-outline">📞 Call</a>`:''}
+        <button onclick="convertLead('${l.id}')" class="btn btn-sm btn-green">✅ Convert</button>
+      </div>
+    </div>`).join('');
 }
 
 function filterBookings(){const v=document.getElementById('filter-status').value;renderBookingsTable(v?allBookings.filter(b=>b.status===v):allBookings);}
@@ -1290,8 +1326,35 @@ async function loadClientView(user){
   document.getElementById('cc-today').textContent=(bookings||[]).filter(b=>b.appointment_date===now).length;
   document.getElementById('cc-week').textContent=(bookings||[]).filter(b=>b.appointment_date>=now&&b.appointment_date<=weekEnd).length;
   document.getElementById('cc-leads').textContent=(leads||[]).length;
-  document.getElementById('c-bk-body').innerHTML=(bookings||[]).length?(bookings||[]).map(b=>`<tr><td><strong style="color:var(--white)">${b.customer_name||'—'}</strong><br><span style="color:var(--muted);font-size:12px;">${b.customer_phone||'—'}</span></td><td>${b.service||'—'}</td><td>${b.appointment_date||'—'} at ${b.appointment_time||'—'}</td><td><span class="tag ${b.status==='confirmed'?'tag-green':b.status==='cancelled'?'tag-red':'tag-yellow'}">${b.status||'pending'}</span></td><td>${b.customer_phone?`<a href="tel:${b.customer_phone}" class="btn btn-xs btn-outline">📞</a>`:'-'}</td><td>${b.status!=='cancelled'?`<button onclick="clientCancelBooking('${b.id}',this)" class="btn btn-xs btn-danger">Cancel</button>`:'<span style="color:var(--muted)">Cancelled</span>'}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No bookings yet! Share your QR code 🚀</td></tr>';
-  document.getElementById('c-ld-body').innerHTML=(leads||[]).length?(leads||[]).map(l=>`<tr><td>${l.owner_name||'—'}</td><td>${l.email||'—'}</td><td>${l.phone||'—'}</td><td style="color:var(--muted);font-size:13px;">${l.message||'—'}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:40px;">No leads yet 📋</td></tr>';
+  const cbEl=document.getElementById('c-bk-body');
+  if(!(bookings||[]).length){cbEl.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">No bookings yet! Share your QR code 🚀</div>';}
+  else{cbEl.innerHTML=(bookings||[]).map(b=>`
+    <div class="m-card">
+      <div class="m-card-top">
+        <div>
+          <div class="m-card-title">${b.customer_name||'—'}</div>
+          <div class="m-card-sub">${b.customer_phone||'—'}</div>
+        </div>
+        <span class="tag ${b.status==='confirmed'?'tag-green':b.status==='cancelled'?'tag-red':'tag-yellow'}">${b.status||'pending'}</span>
+      </div>
+      <div class="m-card-row"><span class="m-label">Service</span><span class="m-val">${b.service||'—'}</span></div>
+      <div class="m-card-row"><span class="m-label">Date & Time</span><span class="m-val">${b.appointment_date||'—'} @ ${b.appointment_time||'—'}</span></div>
+      <div class="m-card-actions">
+        ${b.customer_phone?`<a href="tel:${b.customer_phone}" class="btn btn-sm btn-outline">📞 Call</a>`:''}
+        ${b.status!=='cancelled'?`<button onclick="clientCancelBooking('${b.id}',this)" class="btn btn-sm btn-danger">❌ Cancel</button>`:'<span style="color:var(--muted);font-size:13px;">Cancelled</span>'}
+      </div>
+    </div>`).join('');}
+  const clEl=document.getElementById('c-ld-body');
+  if(!(leads||[]).length){clEl.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">No leads yet 📋</div>';}
+  else{clEl.innerHTML=(leads||[]).map(l=>`
+    <div class="m-card">
+      <div class="m-card-top">
+        <div class="m-card-title">${l.owner_name||'—'}</div>
+      </div>
+      <div class="m-card-row"><span class="m-label">Email</span><span class="m-val" style="font-size:12px;">${l.email||'—'}</span></div>
+      <div class="m-card-row"><span class="m-label">Phone</span><span class="m-val">${l.phone||'—'}</span></div>
+      <div class="m-card-row"><span class="m-label">Message</span><span class="m-val" style="font-size:12px;">${l.message||'—'}</span></div>
+    </div>`).join('');}
 }
 
 async function clientCancelBooking(id,btn){if(!confirm('Cancel this booking?'))return;await sb.from('bookings').update({status:'cancelled'}).eq('id',id);btn.outerHTML='<span style="color:var(--muted);font-size:12px;">Cancelled</span>';}
