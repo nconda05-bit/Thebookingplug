@@ -1135,7 +1135,18 @@ function renderLeadsTable(leads){
 }
 
 function filterBookings(){const v=document.getElementById('filter-status').value;renderBookingsTable(v?allBookings.filter(b=>b.status===v):allBookings);}
-async function deleteBooking(id){if(!confirm('Delete this booking?'))return;await sb.from('bookings').delete().eq('id',id);allBookings=allBookings.filter(b=>String(b.id)!==String(id));document.getElementById('s-bookings').textContent=allBookings.length;renderBookingsTable(allBookings);}
+async function deleteClient(id, email){
+  if(!confirm(`Delete client ${email}? This will remove their account and all access permanently.`)) return;
+  // Delete from clients table
+  const { error } = await sb.from('clients').delete().eq('id', id);
+  if(error){ alert('❌ Could not delete client: '+error.message); return; }
+  // Delete their bookings too
+  await sb.from('bookings').delete().eq('client_id', id);
+  alert('✅ Client deleted successfully.');
+  loadAdminView({ email: ADMIN_EMAIL });
+}
+
+if(!confirm('Delete this booking?'))return;await sb.from('bookings').delete().eq('id',id);allBookings=allBookings.filter(b=>String(b.id)!==String(id));document.getElementById('s-bookings').textContent=allBookings.length;renderBookingsTable(allBookings);}
 async function updateBookingStatus(id,status){await sb.from('bookings').update({status}).eq('id',id);allBookings=allBookings.map(b=>String(b.id)===String(id)?{...b,status}:b);}
 async function togglePayment(id,cur){const ns=cur==='paid'?'unpaid':'paid';await sb.from('bookings').update({payment_status:ns}).eq('id',id);allBookings=allBookings.map(b=>String(b.id)===String(id)?{...b,payment_status:ns}:b);renderBookingsTable(allBookings);}
 function editNote(id,cur){const a=document.getElementById('note-area-'+id);a.innerHTML=`<input class="note-input" id="note-inp-${id}" value="${cur}" placeholder="Add a note..." onblur="saveNote('${id}')" onkeydown="if(event.key==='Enter')saveNote('${id}')">`;document.getElementById('note-inp-'+id).focus();}
