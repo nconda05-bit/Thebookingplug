@@ -621,21 +621,21 @@ tr:hover td{background:rgba(255,255,255,0.015);}
   <p class="section-sub">Start with a 7-day free trial. No credit card required. Cancel anytime.</p>
   <div class="pricing-grid">
     <div class="price-card">
-      <div class="trial-badge">🎁 7-day free trial</div>
+      <div class="trial-badge">🎁 30-day free trial</div>
       <div class="price-name">🌱 Starter</div>
       <div class="price-amt"><sup>$</sup>47<sub>/mo</sub></div>
       <div class="price-desc">Perfect for solo barbers and small salons getting started with AI booking.</div>
       <ul class="price-list"><li><span class="ck">✓</span> AI booking assistant</li><li><span class="ck">✓</span> Up to 100 bookings/month</li><li><span class="ck">✓</span> Custom QR code</li><li><span class="ck">✓</span> SMS & email reminders</li><li><span class="ck">✓</span> Google Calendar sync</li><li><span class="ck">✓</span> Client dashboard</li><li><span class="ck">✓</span> Email support</li></ul>
-      <a href="https://buy.stripe.com/cNicN54Kn0YY2K61ODds401" target="_blank" class="btn btn-outline" style="width:100%;">Start Free Trial →</a>
+      <a href="https://buy.stripe.com/dRm5kD7Wz37684q3WLds402" target="_blank" class="btn btn-outline" style="width:100%;">Start 30-Day Free Trial →</a>
     </div>
     <div class="price-card hot" style="position:relative;">
       <div class="hot-badge">🔥 Most Popular</div>
-      <div class="trial-badge">🎁 7-day free trial</div>
+      <div class="trial-badge" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);color:#8B5CF6;">⚡ No contract, cancel anytime</div>
       <div class="price-name">🚀 Growth</div>
       <div class="price-amt"><sup>$</sup>97<sub>/mo</sub></div>
       <div class="price-desc">For growing shops that need advanced features and unlimited capacity.</div>
       <ul class="price-list"><li><span class="ck">✓</span> Everything in Starter</li><li><span class="ck">✓</span> Unlimited bookings</li><li><span class="ck">✓</span> NFC tags included 🏷️</li><li><span class="ck">✓</span> Lead generation system</li><li><span class="ck">✓</span> Instagram & WhatsApp</li><li><span class="ck">✓</span> Revenue analytics</li><li><span class="ck">✓</span> Priority support 💬</li></ul>
-      <a href="https://buy.stripe.com/6oU6oH3Gjazy2K6eBpds40" target="_blank" class="btn btn-green" style="width:100%;">Start Free Trial →</a>
+      <a href="https://buy.stripe.com/6oU6oH3Gjazy2K6eBpds400" target="_blank" class="btn btn-green" style="width:100%;">Get Started →</a>
     </div>
     <div class="price-card soon" style="position:relative;">
       <div class="soon-badge">🔒 Coming Soon</div>
@@ -822,12 +822,15 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <div id="at-bookings" class="tc">
       <div class="dtable">
         <div class="dtable-head"><h3>All Bookings</h3>
-          <select id="filter-status" onchange="filterBookings()" style="padding:8px 12px;font-size:13px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--white);width:auto;">
-            <option value="">All Statuses</option><option value="confirmed">Confirmed</option><option value="pending">Pending</option><option value="cancelled">Cancelled</option>
-          </select>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <select id="filter-status" onchange="filterBookings()" style="padding:8px 12px;font-size:13px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--white);width:auto;">
+              <option value="">All Statuses</option><option value="confirmed">Confirmed</option><option value="pending">Pending</option><option value="cancelled">Cancelled</option>
+            </select>
+            <button onclick="deleteSelectedBookings()" class="btn btn-danger" style="font-size:13px;padding:8px 14px;">🗑️ Delete Selected</button>
+          </div>
         </div>
-        <table><thead><tr><th>Customer</th><th>Service</th><th>Date & Time</th><th>Status</th><th>Payment</th><th>Note</th><th>Actions</th></tr></thead>
-        <tbody id="t-bookings"><tr><td colspan="7"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
+        <table><thead><tr><th style="width:36px;"><input type="checkbox" id="select-all-cb" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;"></th><th>Customer</th><th>Service</th><th>Date & Time</th><th>Status</th><th>Payment</th><th>Note</th><th>Actions</th></tr></thead>
+        <tbody id="t-bookings"><tr><td colspan="8"><div class="loading"><div class="spin"></div> Loading...</div></td></tr></tbody></table>
       </div>
     </div>
     <div id="at-leads" class="tc">
@@ -920,6 +923,9 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <div class="rlink" id="n-login-email" onclick="copyText(this)">—</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">🔑 Temp Password:</div>
       <div class="rlink" id="n-login-pass" onclick="copyText(this)">—</div>
+      <div id="n-confirm-note" style="display:none;margin-top:14px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);border-radius:10px;padding:12px;font-size:12px;color:#F97316;line-height:1.6;">
+        ⚠️ <strong>If client can't log in:</strong> Go to <strong>Supabase → Authentication → Settings → turn OFF "Enable email confirmations"</strong>. Then they can log in immediately with the temp password.
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-sm btn-outline" onclick="document.getElementById('add-client-modal').classList.remove('open')">Cancel</button>
@@ -1219,6 +1225,7 @@ async function deleteClient(id, email){
 }
 
 async function deleteBooking(id){if(!confirm('Delete this booking?'))return;await sb.from('bookings').delete().eq('id',id);allBookings=allBookings.filter(b=>String(b.id)!==String(id));document.getElementById('s-bookings').textContent=allBookings.length;renderBookingsTable(allBookings);}
+async function deleteSelectedBookings(){const ids=[...document.querySelectorAll('.booking-cb:checked')].map(c=>c.value);if(!ids.length){alert('Select at least one booking first.');return;}if(!confirm(`Delete ${ids.length} booking(s)? This cannot be undone.`))return;for(const id of ids){await sb.from('bookings').delete().eq('id',id);}allBookings=allBookings.filter(b=>!ids.includes(String(b.id)));document.getElementById('s-bookings').textContent=allBookings.length;document.getElementById('select-all-cb').checked=false;renderBookingsTable(allBookings);alert(`✅ ${ids.length} booking(s) deleted.`);}
 async function updateBookingStatus(id,status){await sb.from('bookings').update({status}).eq('id',id);allBookings=allBookings.map(b=>String(b.id)===String(id)?{...b,status}:b);}
 async function togglePayment(id,cur){const ns=cur==='paid'?'unpaid':'paid';await sb.from('bookings').update({payment_status:ns}).eq('id',id);allBookings=allBookings.map(b=>String(b.id)===String(id)?{...b,payment_status:ns}:b);renderBookingsTable(allBookings);}
 function editNote(id,cur){const a=document.getElementById('note-area-'+id);a.innerHTML=`<input class="note-input" id="note-inp-${id}" value="${cur}" placeholder="Add a note..." onblur="saveNote('${id}')" onkeydown="if(event.key==='Enter')saveNote('${id}')">`;document.getElementById('note-inp-'+id).focus();}
@@ -1227,13 +1234,16 @@ async function convertLead(id){await sb.from('leads').update({status:'converted'
 function aTab(id,btn){document.querySelectorAll('#view-admin .tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('#view-admin .tc').forEach(t=>t.classList.remove('on'));btn.classList.add('on');document.getElementById('at-'+id).classList.add('on');}
 
 // ── ADD CLIENT ──
-function openAddClientModal(){document.getElementById('n-pass').value=Math.random().toString(36).slice(2,10).toUpperCase();document.getElementById('n-result').style.display='none';document.getElementById('add-client-modal').classList.add('open');}
+function openAddClientModal(){document.getElementById('n-pass').value=Math.random().toString(36).slice(2,10).toUpperCase();document.getElementById('n-result').style.display='none';document.getElementById('n-confirm-note').style.display='none';document.getElementById('add-client-modal').classList.add('open');}
 async function addClient(){
   const biz=document.getElementById('n-biz').value.trim(),type=document.getElementById('n-type').value,owner=document.getElementById('n-owner').value.trim(),email=document.getElementById('n-email').value.trim(),phone=document.getElementById('n-phone').value.trim(),plan=document.getElementById('n-plan').value,pass=document.getElementById('n-pass').value.trim();
   const msg=document.getElementById('ac-msg');
   if(!biz||!owner||!email||!pass){showModalMsg(msg,'⚠️ Fill in all required fields.','error');return;}
   showModalMsg(msg,'Creating...','');
-  await sb.auth.signUp({email,password:pass});
+  // Create auth user
+  const {data:authData, error:authErr}=await sb.auth.signUp({email,password:pass,options:{data:{role:'client'}}});
+  // Note: if Supabase email confirmation is ON, client must confirm before logging in
+  // To fix: go to Supabase Dashboard → Auth → Settings → disable "Enable email confirmations"
   const {error}=await sb.from('clients').insert([{business_name:biz,business_type:type,owner_name:owner,email,phone,plan,status:'active'}]);
   if(error){showModalMsg(msg,'❌ '+error.message,'error');return;}
 
@@ -1255,6 +1265,7 @@ async function addClient(){
   document.getElementById('n-login-email').textContent=email;
   document.getElementById('n-login-pass').textContent=pass;
   document.getElementById('n-result').style.display='block';
+  document.getElementById('n-confirm-note').style.display='block';
   msg.style.display='none';
   loadAdminView({email:ADMIN_EMAIL});
 }
