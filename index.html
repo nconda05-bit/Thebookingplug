@@ -1103,7 +1103,7 @@ function renderClientsTable(clients){
     <td>${c.owner_name||'—'}<br><span style="color:var(--muted);font-size:12px;">${c.email||'—'} · ${c.phone||'—'}</span></td>
     <td>${c.plan||'—'}</td>
     <td><span class="tag ${c.status==='active'?'tag-green':'tag-yellow'}">${c.status||'pending'}</span></td>
-    <td><div class="action-btns">${c.email?`<a href="mailto:${c.email}" class="btn btn-xs btn-outline">✉️</a>`:''}</div></td>
+    <td><div class="action-btns">${c.email?`<a href="mailto:${c.email}" class="btn btn-xs btn-outline">✉️</a>`:''}<button onclick="deleteClient('${c.id}','${c.email}')" class="btn btn-xs btn-danger">🗑️</button></div></td>
   </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No clients yet 🚀</td></tr>';
 }
 
