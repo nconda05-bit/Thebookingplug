@@ -343,23 +343,32 @@ tr:hover td{background:rgba(255,255,255,0.015);}
 .spin{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:rot 0.7s linear infinite;}
 @keyframes rot{to{transform:rotate(360deg)}}
 
+/* Mobile Fix */
 @media(max-width:768px){
   nav{padding:14px 20px;}
   .nav-links{display:none;}
-  .hero{padding:100px 20px 60px;}
-  .hero h1{font-size:42px;letter-spacing:-1.5px;}
-  .section{padding:60px 20px;}
+  .hero{padding:100px 16px 60px;overflow-x:hidden;}
+  .hero h1{font-size:34px;letter-spacing:-1px;word-break:keep-all;}
+  .hero-sub{font-size:15px;}
+  .pill{font-size:11px;padding:6px 14px;white-space:normal;text-align:center;}
+  .section{padding:60px 16px;overflow-x:hidden;}
+  .section-title{font-size:26px;letter-spacing:-0.5px;}
   .steps,.feats,.testi-grid,.pricing-grid{grid-template-columns:1fr;}
   .feat.wide{grid-column:span 1;}
   .frow{grid-template-columns:1fr;}
-  .consult-wrap{padding:32px 24px;}
+  .consult-wrap{padding:32px 16px;}
   .mockup-stats{grid-template-columns:repeat(2,1fr);}
+  .mockup-wrap{overflow:hidden;}
   .stats-row{grid-template-columns:repeat(2,1fr);}
   .portal-body{padding:20px 16px;}
-  .cta-banner{margin:0 16px;padding:40px 24px;}
-  footer{flex-direction:column;padding:32px 20px;}
+  .cta-banner{margin:0 16px;padding:40px 16px;}
+  .cta-banner h2{font-size:24px;}
+  footer{flex-direction:column;padding:32px 16px;text-align:center;}
+  .footer-links{flex-wrap:wrap;justify-content:center;}
   .booking-layout{grid-template-columns:1fr;}
   #qr-grid{grid-template-columns:1fr!important;}
+  .hero-btns{flex-direction:column;align-items:stretch;}
+  body{overflow-x:hidden;}
 }
 </style>
 </head>
@@ -377,7 +386,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <a href="#book">Book Now</a>
     <a href="#pricing">Pricing</a>
     <a href="#consultation">Consultation</a>
-    <a href="#" onclick="openLoginModal();return false;" style="color:var(--muted);">Client Login</a>
+    <a href="#" onclick="event.preventDefault();openLoginModal();" style="color:var(--muted);">Client Login</a>
     <a href="#pricing" class="btn btn-sm nav-btn">Start Free Trial →</a>
   </div>
 </nav>
@@ -679,6 +688,65 @@ tr:hover td{background:rgba(255,255,255,0.015);}
   </div>
 </div>
 
+
+<!-- ADD TO HOME SCREEN -->
+<div style="background:#0C0C0C;border-top:1px solid var(--border);padding:80px 24px;">
+  <div style="max-width:900px;margin:0 auto;text-align:center;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:16px;">📱 No Download Required</div>
+    <h2 style="font-family:Syne,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;color:var(--white);letter-spacing:-1px;margin-bottom:12px;">Add it to your home screen<br>like an app 🚀</h2>
+    <p style="font-size:16px;color:var(--light);max-width:500px;margin:0 auto 48px;line-height:1.7;">No App Store. No download. Your clients can add The Booking Plug directly to their phone home screen in seconds.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:700px;margin:0 auto;">
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:32px 24px;text-align:left;">
+        <div style="font-size:32px;margin-bottom:16px;">🍎</div>
+        <h3 style="font-family:Syne,sans-serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:16px;">iPhone (Safari)</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--green);flex-shrink:0;">1</div>
+            <p style="font-size:14px;color:var(--light);margin:0;line-height:1.5;">Open <strong style="color:var(--white);">thebookingplug.net</strong> in Safari</p>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--green);flex-shrink:0;">2</div>
+            <p style="font-size:14px;color:var(--light);margin:0;line-height:1.5;">Tap the <strong style="color:var(--white);">Share button</strong> (box with arrow ↑) at the bottom</p>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--green);flex-shrink:0;">3</div>
+            <p style="font-size:14px;color:var(--light);margin:0;line-height:1.5;">Scroll down and tap <strong style="color:var(--white);">"Add to Home Screen"</strong></p>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--green);flex-shrink:0;">4</div>
+            <p style="font-size:14px;color:var(--light);margin:0;line-height:1.5;">Tap <strong style="color:var(--white);">"Add"</strong> — it's on your home screen! 🎉</p>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:32px 24px;text-align:left;">
+        <div style="font-size:32px;margin-bottom:16px;">🤖</div>
+        <h3 style="font-family:Syne,sans-serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:16px;">Android (Chrome)</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--purple-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--purple);flex-shrink:0;">1</div>
+            <p style="font-size:14px;color:var(--light);margin:0;line-height:1.5;">Open <strong style="color:var(--white);">thebookingplug.net</strong> in Chrome</p>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--purple-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--purple);flex-shrink:0;">2</div>
+            <p style="font-size:14px;color:var(--light);margin:0;line-height:1.5;">Tap the <strong style="color:var(--white);">3-dot menu</strong> (⋮) in the top right</p>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--purple-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--purple);flex-shrink:0;">3</div>
+            <p style="font-size:14px;color:var(--light);margin:0;line-height:1.5;">Tap <strong style="color:var(--white);">"Add to Home screen"</strong></p>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--purple-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--purple);flex-shrink:0;">4</div>
+            <p style="font-size:14px;color:var(--light);margin:0;line-height:1.5;">Tap <strong style="color:var(--white);">"Add"</strong> — it's on your home screen! 🎉</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--green-soft);border:1px solid var(--green-border);border-radius:14px;padding:20px 24px;margin-top:32px;max-width:500px;margin-left:auto;margin-right:auto;">
+      <p style="font-size:14px;color:var(--green);font-weight:600;margin:0;">⚡ Works exactly like a real app — opens full screen, no browser bar, instant access!</p>
+    </div>
+  </div>
+</div>
+
 <footer>
   <a href="#" class="logo" style="font-size:18px;display:flex;align-items:center;gap:10px;">
     <img src="logo.png" alt="" style="width:36px;height:36px;border-radius:9px;">
@@ -690,7 +758,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <a href="#pricing">Pricing</a>
     <a href="#consultation">Consultation</a>
     <a href="mailto:Nconda05@gmail.com">Contact</a>
-    <a href="#" onclick="openLoginModal();return false;">Client Login</a>
+    <a href="#" onclick="event.preventDefault();openLoginModal();">Client Login</a>
   </div>
   <div>© 2026 The Booking Plug · thebookingplug.net</div>
 </footer>
@@ -864,6 +932,7 @@ const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const AVAILABILITY_URL = 'https://cashbullysllc.app.n8n.cloud/webhook/get-availability';
 const ALEX_WEBHOOK     = 'https://cashbullysllc.app.n8n.cloud/webhook/ea22885d-d312-4eb7-ac55-d9e832d9a3f4';
 const CONSULT_WEBHOOK  = 'https://cashbullysllc.app.n8n.cloud/webhook/ea22885d-d312-4eb7-ac55-d9e832d9a3f4';
+const ONBOARDING_WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/client-onboarding';
 const ADMIN_EMAIL      = 'nconda05@gmail.com';
 
 const { createClient } = supabase;
@@ -1164,6 +1233,22 @@ async function addClient(){
   await sb.auth.signUp({email,password:pass});
   const {error}=await sb.from('clients').insert([{business_name:biz,business_type:type,owner_name:owner,email,phone,plan,status:'active'}]);
   if(error){showModalMsg(msg,'❌ '+error.message,'error');return;}
+
+  // Send welcome email via n8n
+  try {
+    await fetch(ONBOARDING_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        business_name: biz,
+        owner_name: owner,
+        email,
+        phone,
+        plan,
+        password: pass
+      })
+    });
+  } catch(e) { console.log('Onboarding email:', e); }
   document.getElementById('n-login-email').textContent=email;
   document.getElementById('n-login-pass').textContent=pass;
   document.getElementById('n-result').style.display='block';
