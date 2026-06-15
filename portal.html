@@ -164,7 +164,7 @@ a{color:inherit;text-decoration:none;}
 <body>
 
 <!-- ═══ LOGIN SCREEN ═══ -->
-<div id="scLogin" class="screen on">
+<div id="scLogin" class="screen">
   <div class="login-card">
     <div class="login-plug">🔌 The Booking Plug</div>
     <h1 class="login-title">Client Portal</h1>
@@ -238,11 +238,23 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const SITE_URL     = 'https://thebookingplug.net';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── AUTH STATE ──
-sb.auth.onAuthStateChange(async (_event, session) => {
-  if(session){ await loadPortal(session.user); }
-  else { show('scLogin'); }
+// ── AUTH ──
+// Only handle explicit sign-outs via the listener.
+// Do NOT use onAuthStateChange for initial load — it fires before
+// Supabase has processed the magic link token in the URL hash,
+// causing a premature null-session check that shows the login screen.
+sb.auth.onAuthStateChange((event, _session) => {
+  if(event === 'SIGNED_OUT') resetToLogin();
 });
+
+// Primary auth check. getSession() waits for Supabase to detect and
+// exchange the #access_token hash fragment from a magic link redirect
+// before resolving, so the session is always accurate here.
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if(session) { await loadPortal(session.user); }
+  else { show('scLogin'); }
+})();
 
 // ── SEND MAGIC LINK ──
 async function sendLink(){
@@ -426,6 +438,10 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 // ── LOGOUT ──
 async function logout(){
   await sb.auth.signOut();
+  // onAuthStateChange SIGNED_OUT will call resetToLogin()
+}
+
+function resetToLogin(){
   show('scLogin');
   document.getElementById('loginForm').style.display = 'block';
   document.getElementById('loginSent').style.display = 'none';
@@ -433,6 +449,7 @@ async function logout(){
   document.getElementById('sendBtn').disabled = false;
   document.getElementById('sendBtn').textContent = 'Send Login Link →';
   document.getElementById('qrCode').innerHTML = '';
+  hideError();
 }
 
 // ── UTILS ──
