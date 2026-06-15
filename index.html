@@ -344,6 +344,16 @@ tr:hover td{background:rgba(255,255,255,0.015);}
 .spin{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:rot 0.7s linear infinite;}
 @keyframes rot{to{transform:rotate(360deg)}}
 
+/* HAMBURGER + MOBILE MENU */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:101;}
+.hamburger span{width:22px;height:2px;background:var(--white);border-radius:2px;display:block;transition:all 0.3s;}
+.mobile-menu{display:none;position:fixed;inset:0;z-index:98;background:rgba(8,8,8,0.97);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+.mobile-menu.open{display:flex;}
+.mobile-menu-close{position:absolute;top:20px;right:24px;background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;line-height:1;}
+.mobile-menu-close:hover{color:var(--white);}
+.mobile-menu a{color:var(--white);text-decoration:none;font-size:22px;font-weight:700;font-family:'Syne',sans-serif;transition:color 0.2s;}
+.mobile-menu a:hover{color:var(--green);}
+
 /* Mobile Fix */
 @media(max-width:768px){
   nav{padding:14px 20px;}
@@ -370,7 +380,8 @@ tr:hover td{background:rgba(255,255,255,0.015);}
   #qr-grid{grid-template-columns:1fr!important;}
   .hero-btns{flex-direction:column;align-items:stretch;}
   body{overflow-x:hidden;}
-  .mobile-login-btn{display:block!important;}
+  .mobile-login-btn{display:none!important;}
+  .hamburger{display:flex;}
 }
 
 /* ── MOBILE CARDS ── */
@@ -407,8 +418,19 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <a href="#" onclick="event.preventDefault();openLoginModal();" style="color:var(--muted);">Client Login</a>
     <a href="#pricing" class="btn btn-sm nav-btn">Start Free Trial →</a>
   </div>
-  <button onclick="openLoginModal()" style="display:none;background:transparent;border:1px solid var(--border);color:var(--light);padding:8px 16px;border-radius:10px;font-family:Plus Jakarta Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer;" class="mobile-login-btn">Login</button>
+  <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobile-menu">
+  <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close menu">×</button>
+  <a href="#features" onclick="closeMobileMenu()">Features</a>
+  <a href="#book" onclick="closeMobileMenu()">Book Now</a>
+  <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
+  <a href="#consultation" onclick="closeMobileMenu()">Consultation</a>
+  <a href="#" onclick="event.preventDefault();closeMobileMenu();openLoginModal();">Client Login</a>
+  <a href="#pricing" onclick="closeMobileMenu()" class="btn btn-green" style="font-size:16px;padding:14px 32px;">Start Free Trial →</a>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -844,7 +866,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
             <button onclick="deleteSelectedBookings()" class="btn btn-danger" style="font-size:13px;padding:8px 14px;">🗑️ Delete Selected</button>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><input type="checkbox" id="select-all-cb" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer;"><span style="font-size:13px;color:var(--muted);">Select all</span></div><div id="t-bookings"><div class="loading"><div class="spin"></div> Loading...</div></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><input type="checkbox" id="select-all-cb" style="width:18px;height:18px;accent-color:var(--green);cursor:pointer;" onchange="document.querySelectorAll('.booking-cb').forEach(c=>c.checked=this.checked)"><span style="font-size:13px;color:var(--muted);">Select all</span></div><div id="t-bookings"><div class="loading"><div class="spin"></div> Loading...</div></div>
       </div>
     </div>
     <div id="at-leads" class="tc">
@@ -1210,7 +1232,8 @@ function renderClientsTable(clients){
 }
 
 function renderBookingsTable(bookings){
-  document.getElementById('t-bookings').innerHTML=bookings.length?bookings.map(b=>`<tr>
+  const rows=bookings.length?bookings.map(b=>`<tr>
+    <td><input type="checkbox" class="booking-cb" value="${b.id}" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;"></td>
     <td><strong style="color:var(--white)">${b.customer_name||'—'}</strong><br><span style="color:var(--muted);font-size:12px;">${b.customer_phone||'—'}</span></td>
     <td>${b.service||'—'}</td>
     <td>${b.appointment_date||'—'} at ${b.appointment_time||'—'}</td>
@@ -1222,7 +1245,11 @@ function renderBookingsTable(bookings){
     <td><button onclick="togglePayment('${b.id}','${b.payment_status||'unpaid'}')" class="tag ${b.payment_status==='paid'?'tag-green':'tag-yellow'}" style="cursor:pointer;border:none;font-family:inherit;">${b.payment_status==='paid'?'💰 Paid':'⏳ Unpaid'}</button></td>
     <td><div id="note-area-${b.id}">${b.notes?`<div class="note-text" onclick="editNote('${b.id}','${(b.notes||'').replace(/'/g,"\\'")}')">📝 ${b.notes}</div>`:`<button onclick="editNote('${b.id}','')" class="btn btn-xs btn-outline">+ Note</button>`}</div></td>
     <td><div class="action-btns">${b.customer_phone?`<a href="tel:${b.customer_phone}" class="btn btn-xs btn-outline">📞</a><a href="sms:${b.customer_phone}" class="btn btn-xs btn-outline">💬</a>`:''}<button onclick="deleteBooking('${b.id}')" class="btn btn-xs btn-danger">🗑️</button></div></td>
-  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px;">No bookings yet 📅</td></tr>';
+  </tr>`).join(''):`<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:40px;">No bookings yet 📅</td></tr>`;
+  document.getElementById('t-bookings').innerHTML=`<table><thead><tr>
+    <th style="width:40px;"></th><th>Client</th><th>Service</th><th>Date & Time</th>
+    <th>Status</th><th>Payment</th><th>Notes</th><th>Actions</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function renderLeadsTable(leads){
@@ -1392,6 +1419,10 @@ async function submitConsult(){
     showMsg(fb,'❌ Something went wrong: '+e.message+'. Please email us at Nconda05@gmail.com','error');
   }
 }
+
+// ── MOBILE MENU ──
+function toggleMobileMenu(){document.getElementById('mobile-menu').classList.toggle('open');}
+function closeMobileMenu(){document.getElementById('mobile-menu').classList.remove('open');}
 
 // ── HELPERS ──
 function showMsg(el,txt,type){el.textContent=txt;el.className='form-msg '+type;el.style.display='block';if(type==='success')setTimeout(()=>el.style.display='none',8000);}
