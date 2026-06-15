@@ -266,7 +266,7 @@ Your goal is to collect these four pieces of information through friendly, natur
 
 Guidelines:
 - Start by asking for their name, then date and time, then phone. One question per message.
-- Keep replies to 1-3 short sentences. Be warm, friendly, and professional.
+- Keep every reply to 1-2 sentences MAX. Be warm, snappy, and direct.
 - If they give a vague time (e.g. "afternoon"), ask them to narrow it down.
 - Once you have all four confirmed, send a warm closing confirmation message.
 
@@ -332,7 +332,8 @@ async function sendChat(){
       },
       body: JSON.stringify({
         model: 'claude-opus-4-8',
-        max_tokens: 350,
+        max_tokens: 150,
+        stream: false,
         system: SYSTEM_PROMPT,
         messages: chatHistory
       })
