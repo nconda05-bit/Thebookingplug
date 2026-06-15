@@ -9,6 +9,7 @@
 <title>Book an Appointment — The Booking Plug</title>
 <link rel="icon" type="image/png" href="logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 
@@ -133,6 +134,20 @@ body{
 @keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
 
 /* ── CONFIRMED BANNER ── */
+/* ── GATE SCREENS ── */
+.gate{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:32px;z-index:999;text-align:center;
+}
+.gate-icon{font-size:44px;margin-bottom:20px;}
+.gate-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--white);margin-bottom:10px;line-height:1.2;}
+.gate-sub{font-size:14px;color:var(--muted);line-height:1.6;max-width:280px;}
+.gate-logo{position:absolute;bottom:32px;font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:#2a2a2a;letter-spacing:1.5px;text-transform:uppercase;}
+.spin{width:28px;height:28px;border:3px solid #1e1e1e;border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
 .confirmed-banner{
   margin:8px 16px;
   background:rgba(29,219,126,0.07);
@@ -175,6 +190,21 @@ body{
 </style>
 </head>
 <body>
+
+<!-- LOADING GATE -->
+<div class="gate" id="gateLoading">
+  <div class="spin"></div>
+  <div class="gate-sub">Verifying booking link…</div>
+  <div class="gate-logo">The Booking Plug</div>
+</div>
+
+<!-- BLOCKED GATE (hidden by default) -->
+<div class="gate" id="gateBlocked" style="display:none;">
+  <div class="gate-icon">🔒</div>
+  <div class="gate-title">This booking page is inactive.</div>
+  <div class="gate-sub">Contact your barber for the correct link.</div>
+  <div class="gate-logo">The Booking Plug</div>
+</div>
 
 <!-- HEADER -->
 <div class="bk-header">
@@ -222,6 +252,9 @@ body{
 // ── CONFIG ──
 const CLAUDE_API_KEY     = 'YOUR_ANTHROPIC_API_KEY';
 const ONBOARDING_WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/client-onboarding';
+const SUPABASE_URL       = 'https://zeumzuwbzagakwokzhpz.supabase.co';
+const SUPABASE_KEY       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpldW16dXdiemFnYWt3b2t6aHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODI4NDUsImV4cCI6MjA5Njg1ODg0NX0.HUYHSdT7mbvNxjayEM_wuuAJCL86ZLifeaVZRc-XLik';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── URL PARAMS ──
 const p            = new URLSearchParams(window.location.search);
@@ -275,13 +308,35 @@ BOOKING_CONFIRMED:{"name":"FULL_NAME","phone":"PHONE_NUMBER","date":"DATE","time
 
 Replace placeholders with real values. Never output the marker before you have all four pieces. Never output it more than once.`;
 
+// ── TOKEN GATE ──
+async function checkToken(){
+  const token = p.get('token');
+  if(!token){ showBlocked(); return; }
+  try{
+    const { data } = await sb.from('clients').select('id').eq('token', token).eq('status','active').maybeSingle();
+    if(data){ showChat(); } else { showBlocked(); }
+  }catch(_){ showBlocked(); }
+}
+
+function showBlocked(){
+  document.getElementById('gateLoading').style.display = 'none';
+  document.getElementById('gateBlocked').style.display = 'flex';
+}
+
+function showChat(){
+  document.getElementById('gateLoading').style.display = 'none';
+  init();
+}
+
 // ── INIT ──
-(function init(){
+function init(){
   const greeting = `Hey! 👋 I'm Alex, and I'm here to get you booked with ${barberName}. Takes less than a minute! What's your name?`;
   addMsg('alex', greeting);
   chatHistory.push({role:'assistant', content:greeting});
   document.getElementById('chatInput').focus();
-})();
+}
+
+checkToken();
 
 // ── HELPERS ──
 function addMsg(role, text){
@@ -331,7 +386,7 @@ async function sendChat(){
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-8',
+        model: 'claude-haiku-4-5',
         max_tokens: 150,
         stream: false,
         system: SYSTEM_PROMPT,
