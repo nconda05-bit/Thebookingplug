@@ -1037,6 +1037,7 @@ const CLAUDE_API_KEY   = 'YOUR_ANTHROPIC_API_KEY'; // ⚠️ Do not commit — p
 const CONSULT_WEBHOOK  = 'https://cashbullysllc.app.n8n.cloud/webhook/ea22885d-d312-4eb7-ac55-d9e832d9a3f4';
 const ONBOARDING_WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/client-onboarding';
 const ADMIN_EMAIL      = 'nconda05@gmail.com';
+const DEMO_MODE        = true; // set false on live /book/ page
 
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1218,6 +1219,24 @@ async function sendChat(){
   chatHistory.push({role:'user', content:text});
   addTyping();
   setChatBusy(true);
+
+  if(DEMO_MODE){
+    await new Promise(r => setTimeout(r, 900));
+    removeTyping();
+    setChatBusy(false);
+    const userMsgs = chatHistory.filter(m => m.role === 'user').length;
+    const displayDate = wFmtDisplay(chatBookingDate);
+    if(userMsgs === 1){
+      const reply = `Thanks ${text}! 🎉 Heads up — this is a demo. On your live booking page, your appointment for ${displayDate} at ${chatBookingTime} would be confirmed instantly and you'd get a confirmation text right to your phone!`;
+      addChatMsg('alex', reply);
+      document.getElementById('chatInput').placeholder = 'Demo ended — visit the live page to book for real!';
+      document.getElementById('chatInput').disabled = true;
+      document.getElementById('chatSendBtn').disabled = true;
+    } else {
+      addChatMsg('alex', "This is a demo — visit the live booking page to book for real! 🔌");
+    }
+    return;
+  }
 
   try{
     const res = await fetch('https://api.anthropic.com/v1/messages', {
