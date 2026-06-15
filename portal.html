@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Barber Portal — The Booking Plug</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#080808;--card:#111111;--card2:#181818;
+  --border:#252525;--white:#fff;--muted:#888;--light:#bbb;
+  --green:#1DDB7E;--green-soft:rgba(29,219,126,0.08);--green-border:rgba(29,219,126,0.2);
+  --purple:#8B5CF6;--purple-soft:rgba(139,92,246,0.08);--purple-border:rgba(139,92,246,0.2);
+  --yellow:#F59E0B;--danger:#EF4444;
+}
+body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+
+/* ── SCREENS ── */
+.screen{display:none;}
+.screen.on{display:block;}
+
+/* ── LOGIN ── */
+#scLogin{
+  min-height:100vh;display:flex;align-items:center;
+  justify-content:center;padding:24px;
+}
+.login-card{
+  width:100%;max-width:400px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:24px;padding:40px 32px;
+}
+.login-plug{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:800;
+  color:var(--green);letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:28px;display:flex;align-items:center;gap:8px;
+}
+.login-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--white);letter-spacing:-0.8px;margin-bottom:6px;}
+.login-sub{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.5;}
+.field-label{display:block;font-size:12px;font-weight:700;color:var(--light);margin-bottom:8px;letter-spacing:0.3px;}
+.field-input{
+  width:100%;background:var(--card2);border:1.5px solid var(--border);
+  border-radius:12px;padding:13px 16px;color:var(--white);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;
+  outline:none;transition:border-color 0.15s;
+}
+.field-input:focus{border-color:var(--green);}
+.field-input::placeholder{color:#444;}
+.btn-primary{
+  width:100%;margin-top:16px;
+  background:var(--green);color:#000;border:none;border-radius:12px;
+  padding:14px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:800;font-size:15px;cursor:pointer;transition:opacity 0.15s;
+}
+.btn-primary:hover{opacity:0.88;}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
+.sent-wrap{text-align:center;padding:8px 0;}
+.sent-icon{font-size:48px;margin-bottom:16px;}
+.sent-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);margin-bottom:8px;}
+.sent-sub{font-size:14px;color:var(--muted);line-height:1.6;}
+.sent-sub strong{color:var(--white);}
+.login-error{margin-top:14px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;font-size:13px;color:var(--danger);display:none;}
+
+/* ── PORTAL HEADER ── */
+.p-header{
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:14px 20px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:50;
+}
+.p-logo{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
+.p-name{font-size:13px;color:var(--muted);margin-top:2px;}
+.btn-logout{
+  background:transparent;border:1px solid var(--border);
+  border-radius:8px;padding:7px 14px;color:var(--muted);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;
+  font-weight:600;cursor:pointer;transition:all 0.15s;
+}
+.btn-logout:hover{border-color:var(--danger);color:var(--danger);}
+
+/* ── PORTAL BODY ── */
+.p-body{max-width:680px;margin:0 auto;padding:24px 16px 48px;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--white);letter-spacing:-0.2px;}
+
+/* ── BOOKING LINK ── */
+.link-box{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:12px;padding:12px 14px;
+  font-size:13px;color:var(--light);word-break:break-all;
+  line-height:1.5;margin-bottom:16px;font-family:monospace;
+}
+.link-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-copy{
+  background:var(--green);color:#000;border:none;border-radius:9px;
+  padding:9px 18px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:800;font-size:13px;cursor:pointer;transition:opacity 0.15s;
+}
+.btn-copy:hover{opacity:0.85;}
+.btn-dl{
+  background:transparent;border:1px solid var(--border);border-radius:9px;
+  padding:9px 18px;color:var(--light);font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:600;font-size:13px;cursor:pointer;transition:all 0.15s;
+}
+.btn-dl:hover{border-color:var(--green);color:var(--green);}
+.qr-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  gap:14px;padding:20px;background:var(--card2);
+  border:1px solid var(--border);border-radius:14px;margin-bottom:16px;
+}
+#qrCode{display:flex;align-items:center;justify-content:center;border-radius:8px;overflow:hidden;}
+#qrCode img, #qrCode canvas{border-radius:6px;}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 18px;}
+.stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--white);letter-spacing:-1px;line-height:1;}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:6px;font-weight:600;}
+.stat-card:nth-child(1) .stat-val{color:var(--green);}
+.stat-card:nth-child(2) .stat-val{color:var(--purple);}
+.stat-card:nth-child(3) .stat-val{color:var(--yellow);}
+.stat-card:nth-child(4) .stat-val{color:var(--green);}
+
+/* ── APPOINTMENTS ── */
+.appt-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);gap:12px;
+}
+.appt-row:last-child{border-bottom:none;}
+.appt-name{font-size:14px;font-weight:700;color:var(--white);margin-bottom:2px;}
+.appt-phone{font-size:12px;color:var(--muted);}
+.appt-right{text-align:right;flex-shrink:0;}
+.appt-date{font-size:13px;font-weight:700;color:var(--light);}
+.appt-time{font-size:12px;color:var(--green);font-weight:600;margin-top:2px;}
+.appt-status{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 8px;border-radius:6px;margin-top:4px;}
+.appt-status.confirmed{background:var(--green-soft);color:var(--green);border:1px solid var(--green-border);}
+.appt-status.pending{background:rgba(245,158,11,0.08);color:var(--yellow);border:1px solid rgba(245,158,11,0.2);}
+.empty-state{text-align:center;padding:32px 16px;color:var(--muted);font-size:14px;}
+.loading-state{text-align:center;padding:24px;color:var(--muted);font-size:14px;}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid #222;border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── SECTION LABEL ── */
+.section-eye{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .login-card{padding:28px 20px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .stat-val{font-size:26px;}
+  .p-body{padding:16px 12px 48px;}
+  .card{padding:18px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="scLogin" class="screen on">
+  <div class="login-card">
+    <div class="login-plug">🔌 The Booking Plug</div>
+    <h1 class="login-title">Barber Portal</h1>
+    <p class="login-sub">Sign in to see your booking link, QR code, and upcoming appointments.</p>
+
+    <div id="loginForm">
+      <label class="field-label" for="loginEmail">Email address</label>
+      <input class="field-input" type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')sendLink()">
+      <button class="btn-primary" id="sendBtn" onclick="sendLink()">Send Login Link →</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+
+    <div id="loginSent" style="display:none;" class="sent-wrap">
+      <div class="sent-icon">📬</div>
+      <div class="sent-title">Check your email!</div>
+      <p class="sent-sub">We sent a secure login link to<br><strong id="sentEmail"></strong><br><br>Click the link to access your portal.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PORTAL SCREEN ═══ -->
+<div id="scPortal" class="screen">
+
+  <!-- HEADER -->
+  <div class="p-header">
+    <div>
+      <div class="p-logo">🔌 The Booking Plug</div>
+      <div class="p-name" id="pName">Loading…</div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Log out</button>
+  </div>
+
+  <!-- BODY -->
+  <div class="p-body">
+
+    <!-- BOOKING LINK -->
+    <div class="section-eye">Your Booking Link</div>
+    <div class="card">
+      <div class="link-box" id="linkBox">—</div>
+      <div class="qr-wrap">
+        <div id="qrCode"></div>
+      </div>
+      <div class="link-actions">
+        <button class="btn-copy" id="copyBtn" onclick="copyLink()">Copy Link</button>
+        <button class="btn-dl" onclick="downloadQR()">⬇ Download QR</button>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="section-eye" style="margin-top:8px;">Analytics</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Total Bookings</div></div>
+      <div class="stat-card"><div class="stat-val" id="statMonth">—</div><div class="stat-lbl">This Month</div></div>
+      <div class="stat-card"><div class="stat-val" id="statDay">—</div><div class="stat-lbl">Busiest Day</div></div>
+      <div class="stat-card"><div class="stat-val" id="statTime">—</div><div class="stat-lbl">Peak Time</div></div>
+    </div>
+
+    <!-- UPCOMING APPOINTMENTS -->
+    <div class="section-eye" style="margin-top:8px;">Upcoming Appointments</div>
+    <div class="card">
+      <div id="apptList"><div class="loading-state"><span class="spin"></span>Loading…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const SUPABASE_URL = 'https://zeumzuwbzagakwokzhpz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpldW16dXdiemFnYWt3b2t6aHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODI4NDUsImV4cCI6MjA5Njg1ODg0NX0.HUYHSdT7mbvNxjayEM_wuuAJCL86ZLifeaVZRc-XLik';
+const SITE_URL     = 'https://thebookingplug.net';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── AUTH STATE ──
+sb.auth.onAuthStateChange(async (_event, session) => {
+  if(session){ await loadPortal(session.user); }
+  else { show('scLogin'); }
+});
+
+// ── SEND MAGIC LINK ──
+async function sendLink(){
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email){ showError('Please enter your email address.'); return; }
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  hideError();
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options:{ emailRedirectTo: SITE_URL + '/portal.html' }
+  });
+  if(error){
+    showError(error.message);
+    btn.disabled = false; btn.textContent = 'Send Login Link →';
+  } else {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('sentEmail').textContent = email;
+    document.getElementById('loginSent').style.display = 'block';
+  }
+}
+
+// ── LOAD PORTAL ──
+async function loadPortal(user){
+  show('scPortal');
+
+  // Fetch client record
+  const { data: client, error } = await sb
+    .from('clients').select('*').eq('email', user.email).maybeSingle();
+
+  if(!client){
+    await sb.auth.signOut();
+    show('scLogin');
+    showError('No barber account found for ' + user.email + '. Contact The Booking Plug to get set up.');
+    document.getElementById('loginForm').style.display = 'block';
+    return;
+  }
+
+  const displayName = client.owner_name || client.business_name || 'Barber';
+  document.getElementById('pName').textContent = displayName;
+
+  // Build and render booking link
+  const url = buildLink(client);
+  document.getElementById('linkBox').textContent = url;
+  generateQR(url);
+
+  // Fetch bookings — matched by barber name
+  const barberName = client.owner_name || client.business_name || '';
+  const { data: bookings } = await sb
+    .from('bookings').select('*')
+    .eq('barber', barberName)
+    .order('appointment_date', { ascending: true });
+
+  const all = bookings || [];
+  renderStats(all);
+  renderUpcoming(all);
+}
+
+// ── BUILD BOOKING LINK ──
+function buildLink(client){
+  const name    = encodeURIComponent(client.owner_name || client.business_name || 'Barber');
+  const service = encodeURIComponent(client.service || client.business_type || 'Cuts & Styles');
+  const token   = client.token || '';
+  const handle  = client.handle ? '&handle=' + encodeURIComponent(client.handle) : '';
+  return `${SITE_URL}/book.html?name=${name}&service=${service}&token=${token}${handle}`;
+}
+
+// ── QR CODE ──
+function generateQR(url){
+  document.getElementById('qrCode').innerHTML = '';
+  new QRCode(document.getElementById('qrCode'), {
+    text: url, width: 200, height: 200,
+    colorDark: '#ffffff', colorLight: '#111111',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+function downloadQR(){
+  const canvas = document.querySelector('#qrCode canvas');
+  if(!canvas){ alert('QR code not ready yet.'); return; }
+  const a = document.createElement('a');
+  a.download = 'booking-qr.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+// ── COPY LINK ──
+async function copyLink(){
+  const url = document.getElementById('linkBox').textContent;
+  try{
+    await navigator.clipboard.writeText(url);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied! ✓';
+    setTimeout(() => btn.textContent = 'Copy Link', 2000);
+  }catch(_){}
+}
+
+// ── ANALYTICS ──
+function renderStats(bookings){
+  const now = new Date();
+  const mn  = now.getMonth(), yr = now.getFullYear();
+
+  // Total
+  document.getElementById('statTotal').textContent = bookings.length;
+
+  // This month
+  const thisMonth = bookings.filter(b => {
+    const d = new Date(b.appointment_date || b.created_at);
+    return !isNaN(d) && d.getMonth() === mn && d.getFullYear() === yr;
+  }).length;
+  document.getElementById('statMonth').textContent = thisMonth;
+
+  // Busiest day of week
+  const days = {};
+  bookings.forEach(b => {
+    const d = new Date(b.appointment_date);
+    if(!isNaN(d)){ const k = d.toLocaleDateString('en-US',{weekday:'short'}); days[k]=(days[k]||0)+1; }
+  });
+  const topDay = Object.entries(days).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('statDay').textContent = topDay ? topDay[0] : '—';
+
+  // Peak time
+  const times = {};
+  bookings.forEach(b => {
+    if(b.appointment_time){
+      const m = b.appointment_time.match(/(\d+)(?::\d+)?\s*(am|pm)?/i);
+      if(m){
+        let hr = parseInt(m[1]);
+        const pm = (m[2]||'').toLowerCase() === 'pm';
+        if(pm && hr !== 12) hr += 12;
+        if(!pm && hr === 12) hr = 0;
+        const lbl = hr === 0?'12am':hr<12?hr+'am':hr===12?'12pm':(hr-12)+'pm';
+        times[lbl] = (times[lbl]||0)+1;
+      }
+    }
+  });
+  const topTime = Object.entries(times).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('statTime').textContent = topTime ? topTime[0] : '—';
+}
+
+// ── UPCOMING APPOINTMENTS ──
+function renderUpcoming(bookings){
+  const el    = document.getElementById('apptList');
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const upcoming = bookings.filter(b => {
+    if(b.status === 'cancelled') return false;
+    const d = new Date(b.appointment_date);
+    return isNaN(d) || d >= today;
+  }).slice(0, 30);
+
+  if(!upcoming.length){
+    el.innerHTML = '<div class="empty-state">No upcoming appointments yet 📅</div>';
+    return;
+  }
+
+  el.innerHTML = upcoming.map(b => `
+    <div class="appt-row">
+      <div>
+        <div class="appt-name">${esc(b.customer_name||'—')}</div>
+        <div class="appt-phone">${esc(b.customer_phone||'')}</div>
+      </div>
+      <div class="appt-right">
+        <div class="appt-date">${fmtDate(b.appointment_date)}</div>
+        <div class="appt-time">${esc(b.appointment_time||'—')}</div>
+        <div class="appt-status ${b.status||'confirmed'}">${b.status||'confirmed'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function fmtDate(d){
+  if(!d) return '—';
+  const dt = new Date(d);
+  if(isNaN(dt)) return d;
+  return dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── LOGOUT ──
+async function logout(){
+  await sb.auth.signOut();
+  show('scLogin');
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('loginSent').style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('sendBtn').textContent = 'Send Login Link →';
+  document.getElementById('qrCode').innerHTML = '';
+}
+
+// ── UTILS ──
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+function showError(msg){ const e=document.getElementById('loginError'); e.textContent=msg; e.style.display='block'; }
+function hideError(){ document.getElementById('loginError').style.display='none'; }
+</script>
+</body>
+</html>
