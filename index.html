@@ -256,30 +256,59 @@ footer a:hover{color:var(--green);}
 .chat-step-text span{font-size:13px;color:var(--muted);}
 
 /* ALEX CHAT POPUP */
-.chat-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:flex-end;justify-content:center;padding:20px;}
+.chat-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:999;align-items:flex-end;justify-content:center;padding:20px;}
 .chat-overlay.open{display:flex;}
-.chat-box{background:#111;border:1px solid #222;border-radius:20px 20px 0 0;width:100%;max-width:480px;height:70vh;display:flex;flex-direction:column;overflow:hidden;}
-.chat-top{background:linear-gradient(135deg,#1DDB7E,#15b866);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
-.chat-top-info{display:flex;align-items:center;gap:10px;}
-.chat-avatar{width:38px;height:38px;background:rgba(0,0,0,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
-.chat-name{font-weight:800;color:#000;font-size:15px;}
-.chat-status{font-size:11px;color:rgba(0,0,0,0.6);}
-.chat-close{background:none;border:none;font-size:22px;color:rgba(0,0,0,0.6);cursor:pointer;line-height:1;}
-.chat-close:hover{color:#000;}
-.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
-.chat-msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;}
-.chat-msg.alex{background:#1a1a1a;color:#ddd;align-self:flex-start;border-radius:4px 16px 16px 16px;}
+.chat-box{background:#0e0e0e;border:1px solid #1e1e1e;border-radius:20px 20px 0 0;width:100%;max-width:480px;height:72vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,0.6);}
+.chat-top{background:linear-gradient(135deg,#1DDB7E 0%,#13c46a 100%);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+.chat-top-info{display:flex;align-items:center;gap:12px;}
+.chat-avatar{width:40px;height:40px;background:rgba(0,0,0,0.18);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#000;letter-spacing:-0.5px;}
+.chat-name{font-family:'Syne',sans-serif;font-weight:800;color:#000;font-size:15px;letter-spacing:-0.3px;}
+.chat-status{font-size:11px;color:rgba(0,0,0,0.55);margin-top:1px;}
+.chat-close{background:rgba(0,0,0,0.12);border:none;font-size:18px;color:rgba(0,0,0,0.65);cursor:pointer;line-height:1;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.chat-close:hover{background:rgba(0,0,0,0.22);color:#000;}
+.chat-messages{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:#222 transparent;}
+.chat-msg{max-width:82%;padding:11px 15px;border-radius:16px;font-size:14px;line-height:1.55;}
+.chat-msg.alex{background:#161616;border:1px solid #222;color:#ccc;align-self:flex-start;border-radius:4px 16px 16px 16px;}
 .chat-msg.user{background:#1DDB7E;color:#000;align-self:flex-end;border-radius:16px 16px 4px 16px;font-weight:600;}
-.chat-input-row{padding:12px 16px;border-top:1px solid #222;display:flex;gap:8px;}
-.chat-input{flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:11px 14px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;}
+.chat-input-row{padding:14px 16px;border-top:1px solid #1a1a1a;display:flex;gap:8px;background:#0e0e0e;}
+.chat-input{flex:1;background:#161616;border:1px solid #252525;border-radius:12px;padding:12px 15px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.15s;}
 .chat-input:focus{border-color:#1DDB7E;}
-.chat-send{background:#1DDB7E;color:#000;border:none;border-radius:10px;padding:11px 16px;font-weight:800;cursor:pointer;font-size:14px;}
-.chat-send:hover{opacity:0.9;}
-.chat-typing{display:flex;gap:4px;padding:8px 14px;background:#1a1a1a;border-radius:4px 16px 16px 16px;width:fit-content;align-self:flex-start;}
-.chat-typing span{width:6px;height:6px;background:#555;border-radius:50%;animation:bounce 1.2s infinite;}
+.chat-input::placeholder{color:#444;}
+.chat-send{background:#1DDB7E;color:#000;border:none;border-radius:10px;padding:12px 18px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;cursor:pointer;font-size:14px;transition:opacity 0.15s;}
+.chat-send:hover{opacity:0.88;}
+.chat-send:disabled{opacity:0.4;cursor:not-allowed;}
+.chat-typing{display:flex;gap:5px;padding:10px 15px;background:#161616;border:1px solid #222;border-radius:4px 16px 16px 16px;width:fit-content;align-self:flex-start;}
+.chat-typing span{width:6px;height:6px;background:#444;border-radius:50%;animation:bounce 1.2s infinite;}
 .chat-typing span:nth-child(2){animation-delay:0.2s;}
 .chat-typing span:nth-child(3){animation-delay:0.4s;}
-@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+
+/* STATIC CHAT WIDGET */
+.sc-btn{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;align-items:center;gap:8px;background:#1DDB7E;color:#000;border:none;border-radius:999px;padding:13px 20px 13px 16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 20px rgba(29,219,126,0.35);transition:transform 0.15s,box-shadow 0.15s,opacity 0.2s;}
+.sc-btn:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(29,219,126,0.45);}
+.sc-panel{position:fixed;bottom:88px;right:24px;z-index:901;width:340px;max-height:480px;background:#0e0e0e;border:1px solid #1e1e1e;border-radius:20px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);transform:scale(0.95) translateY(12px);opacity:0;pointer-events:none;transition:transform 0.2s ease,opacity 0.2s ease;}
+.sc-panel.open{transform:scale(1) translateY(0);opacity:1;pointer-events:auto;}
+.sc-header{background:linear-gradient(135deg,#8B5CF6,#6d43c9);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.sc-avatar{width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;}
+.sc-hinfo{display:flex;align-items:center;gap:10px;}
+.sc-name{font-family:'Syne',sans-serif;font-weight:800;color:#fff;font-size:14px;}
+.sc-status{font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px;}
+.sc-close{background:rgba(255,255,255,0.12);border:none;font-size:14px;color:rgba(255,255,255,0.7);cursor:pointer;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.sc-close:hover{background:rgba(255,255,255,0.22);color:#fff;}
+.sc-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:#222 transparent;}
+.sc-msg{max-width:88%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.55;}
+.sc-msg.alex{background:#161616;border:1px solid #222;color:#ccc;align-self:flex-start;border-radius:4px 14px 14px 14px;}
+.sc-msg.user{background:#8B5CF6;color:#fff;align-self:flex-end;border-radius:14px 14px 4px 14px;font-weight:600;}
+.sc-quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;align-self:flex-start;}
+.sc-quick-btn{background:transparent;border:1px solid #2e2e2e;color:#888;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;border-radius:999px;padding:6px 12px;cursor:pointer;transition:border-color 0.15s,color 0.15s;}
+.sc-quick-btn:hover{border-color:#8B5CF6;color:#8B5CF6;}
+.sc-input-row{padding:11px;border-top:1px solid #1a1a1a;display:flex;gap:7px;background:#0e0e0e;}
+.sc-input{flex:1;background:#161616;border:1px solid #252525;border-radius:10px;padding:10px 13px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.15s;}
+.sc-input:focus{border-color:#8B5CF6;}
+.sc-input::placeholder{color:#444;}
+.sc-send{background:#8B5CF6;color:#fff;border:none;border-radius:9px;padding:10px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;font-size:13px;transition:opacity 0.15s;}
+.sc-send:hover{opacity:0.88;}
+@media(max-width:480px){.sc-panel{width:calc(100vw - 32px);right:16px;bottom:76px;}.sc-btn{right:16px;bottom:16px;}}
 
 /* PORTAL */
 .portal-nav{background:var(--card);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
@@ -803,6 +832,29 @@ tr:hover td{background:rgba(255,255,255,0.015);}
   </div>
   <div>© 2026 The Booking Plug · thebookingplug.net</div>
 </footer>
+<!-- ═══ STATIC ALEX CHAT ═══ -->
+<button class="sc-btn" id="scBtn" onclick="toggleStaticChat()">
+  <span style="font-size:18px;line-height:1;">💬</span>
+  Ask Alex
+</button>
+<div class="sc-panel" id="scPanel">
+  <div class="sc-header">
+    <div class="sc-hinfo">
+      <div class="sc-avatar">A</div>
+      <div>
+        <div class="sc-name">Alex</div>
+        <div class="sc-status">The Booking Plug &bull; Always Online</div>
+      </div>
+    </div>
+    <button class="sc-close" onclick="closeStaticChat()">&#x2715;</button>
+  </div>
+  <div class="sc-body" id="scBody"></div>
+  <div class="sc-input-row">
+    <input class="sc-input" id="scInput" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')staticSend()">
+    <button class="sc-send" onclick="staticSend()">Send</button>
+  </div>
+</div>
+
 </div><!-- /view-home -->
 
 <!-- ═══ ALEX CHAT POPUP ═══ -->
@@ -810,18 +862,18 @@ tr:hover td{background:rgba(255,255,255,0.015);}
   <div class="chat-box">
     <div class="chat-top">
       <div class="chat-top-info">
-        <div class="chat-avatar">🤖</div>
+        <div class="chat-avatar">A</div>
         <div>
           <div class="chat-name">Alex</div>
-          <div class="chat-status">AI Booking Assistant • Online</div>
+          <div class="chat-status">AI Booking Assistant &bull; Online</div>
         </div>
       </div>
-      <button class="chat-close" onclick="closeChat()">×</button>
+      <button class="chat-close" onclick="closeChat()">&#x2715;</button>
     </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-row">
       <input class="chat-input" id="chatInput" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendChat()">
-      <button class="chat-send" onclick="sendChat()">Send</button>
+      <button class="chat-send" id="chatSendBtn" onclick="sendChat()">Send</button>
     </div>
   </div>
 </div>
@@ -973,6 +1025,7 @@ const SUPABASE_URL  = 'https://zeumzuwbzagakwokzhpz.supabase.co';
 const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpldW16dXdiemFnYWt3b2t6aHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODI4NDUsImV4cCI6MjA5Njg1ODg0NX0.HUYHSdT7mbvNxjayEM_wuuAJCL86ZLifeaVZRc-XLik';
 const AVAILABILITY_URL = 'https://cashbullysllc.app.n8n.cloud/webhook/get-availability';
 const ALEX_WEBHOOK     = 'https://cashbullysllc.app.n8n.cloud/webhook/ea22885d-d312-4eb7-ac55-d9e832d9a3f4';
+const CLAUDE_API_KEY   = 'YOUR_ANTHROPIC_API_KEY'; // ⚠️ Do not commit — paste your key here locally
 const CONSULT_WEBHOOK  = 'https://cashbullysllc.app.n8n.cloud/webhook/ea22885d-d312-4eb7-ac55-d9e832d9a3f4';
 const ONBOARDING_WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/client-onboarding';
 const ADMIN_EMAIL      = 'nconda05@gmail.com';
@@ -1087,21 +1140,27 @@ function wReset(){
 
 // ── ALEX CHAT ──
 let chatHistory = [];
-let chatSessionId = 'widget-' + Date.now();
+let chatSystemPrompt = '';
 
 function openChat(date, time){
+  closeStaticChat();
+  const scBtn = document.getElementById('scBtn');
+  if(scBtn){ scBtn.style.opacity='0'; scBtn.style.pointerEvents='none'; }
   document.getElementById('chatOverlay').classList.add('open');
   document.getElementById('chatMessages').innerHTML='';
   chatHistory=[];
   const displayDate = wFmtDisplay(date);
-  const firstMsg = `Hey! 👋 I see you want to book on ${displayDate} at ${time}. What's your name so I can get you locked in? 🔌`;
+  chatSystemPrompt = `You are Alex, the AI booking assistant for The Booking Plug — a premium content creation and brand consulting service. The client has already selected ${displayDate} at ${time} for their appointment. Greet them warmly, collect their name and a contact email or phone number, confirm the booking details, and wrap up positively. Be concise, friendly, and on-brand. Keep each reply to 1-3 short sentences. Never break character.`;
+  const firstMsg = `Hey! 👋 I see you're looking to book on ${displayDate} at ${time}. What's your name so I can get you locked in? 🔌`;
   addChatMsg('alex', firstMsg);
-  chatHistory.push({role:'assistant',content:firstMsg});
+  chatHistory.push({role:'assistant', content:firstMsg});
   document.getElementById('chatInput').focus();
 }
 
 function closeChat(){
   document.getElementById('chatOverlay').classList.remove('open');
+  const scBtn = document.getElementById('scBtn');
+  if(scBtn){ scBtn.style.opacity=''; scBtn.style.pointerEvents=''; }
 }
 
 function addChatMsg(role, text){
@@ -1124,36 +1183,119 @@ function addTyping(){
 
 function removeTyping(){ const t=document.getElementById('typing'); if(t)t.remove(); }
 
+function setChatBusy(busy){
+  const btn = document.getElementById('chatSendBtn');
+  const input = document.getElementById('chatInput');
+  if(btn) btn.disabled = busy;
+  if(input) input.disabled = busy;
+}
+
 async function sendChat(){
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
   if(!text) return;
   input.value='';
   addChatMsg('user', text);
-  chatHistory.push({role:'user',content:text});
+  chatHistory.push({role:'user', content:text});
   addTyping();
+  setChatBusy(true);
 
   try{
-    const res = await fetch(ALEX_WEBHOOK, {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': CLAUDE_API_KEY,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
       body: JSON.stringify({
-        sessionId: chatSessionId,
-        chatInput: text,
-        preSelectedDate: wSelDate,
-        preSelectedTime: wSelTime,
+        model:'claude-opus-4-8',
+        max_tokens:300,
+        system: chatSystemPrompt,
         messages: chatHistory
       })
     });
     const data = await res.json();
     removeTyping();
-    const reply = data.output || data.text || data.message || "Got it! Let me get that sorted for you.";
+    const reply = data.content?.[0]?.text || "Got it! Let me get that sorted for you.";
     addChatMsg('alex', reply);
-    chatHistory.push({role:'assistant',content:reply});
+    chatHistory.push({role:'assistant', content:reply});
   }catch(e){
     removeTyping();
-    addChatMsg('alex',"I'm having a quick hiccup — give me a sec and try again! 🙏");
+    addChatMsg('alex', "I'm having a quick hiccup — give me a sec and try again! 🙏");
+  }finally{
+    setChatBusy(false);
   }
+}
+
+// ── STATIC CHAT ──
+const SC_RESPONSES = [
+  {keys:['what is','about','booking plug','who are','tell me'],          reply:"The Booking Plug is an AI-powered booking platform built for barbershops and salons. We automate your appointments so your chairs stay filled — no back-and-forth, no no-shows. 💈"},
+  {keys:['service','feature','offer','what do you','what can'],          reply:"We offer a smart booking widget, AI appointment management, automated reminders, client tracking, and revenue analytics — all in one clean dashboard. 📊"},
+  {keys:['price','cost','how much','plan','subscription','fee','pay'],   reply:"Starter is $49/mo for solo stylists. Pro is $97/mo for multi-chair shops. Both come with a 30-day free trial — no credit card required! 💸"},
+  {keys:['trial','free','try','test'],                                   reply:"Every plan includes a 30-day free trial with zero credit card needed. Just click 'Start Free Trial' in the nav to kick things off. 🎉"},
+  {keys:['start','sign up','get started','begin','setup','join'],        reply:"Click 'Start Free Trial' in the nav or scroll to Pricing. Takes about 2 minutes — we handle all the technical stuff for you. 🚀"},
+  {keys:['book','appointment','schedule','slot','calendar','available'], reply:"Scroll down to the Book Now section and pick an open slot! Our AI will walk you through the rest and get you confirmed in seconds. ⬇️"},
+  {keys:['demo','consultation','call','meeting','show me'],              reply:"Absolutely — scroll down to the Consultation section to book a free demo call. We'll walk you through the platform live with no pressure. 📞"},
+  {keys:['contact','email','reach','support','help'],                    reply:"Reach us anytime at nconda05@gmail.com — we usually respond within a few hours. Or book a free consultation below! 📩"},
+  {keys:['barber','salon','shop','stylist','nail','spa','hair'],         reply:"We work with barbershops, hair salons, nail studios, spas, and any appointment-based business. If you've got chairs, we fill them! ✂️"},
+  {keys:['different','better','why','vs','compare','unique'],            reply:"Unlike generic booking tools, we're built specifically for barbers and salons — with AI that learns your schedule, fills cancellations automatically, and keeps clients coming back. 🔌"}
+];
+const SC_DEFAULT = "Great question! For anything specific, reach us at nconda05@gmail.com — or book a free consultation and we'll walk you through everything. 😊";
+const SC_QUICK   = ["What is this?","Pricing?","Book a demo","Get started"];
+
+function toggleStaticChat(){
+  document.getElementById('scPanel').classList.contains('open') ? closeStaticChat() : openStaticChat();
+}
+function openStaticChat(){
+  const panel = document.getElementById('scPanel');
+  panel.classList.add('open');
+  const body = document.getElementById('scBody');
+  if(!body.children.length){
+    scAddMsg('alex', "Hey! 👋 I'm Alex, your guide for The Booking Plug. What can I help you with?");
+    scShowQuick();
+  }
+  setTimeout(()=>{ const i=document.getElementById('scInput'); if(i) i.focus(); }, 200);
+}
+function closeStaticChat(){
+  const panel = document.getElementById('scPanel');
+  if(panel) panel.classList.remove('open');
+}
+function scAddMsg(role, text){
+  const body = document.getElementById('scBody');
+  const div = document.createElement('div');
+  div.className = `sc-msg ${role}`;
+  div.textContent = text;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+function scShowQuick(){
+  const body = document.getElementById('scBody');
+  const wrap = document.createElement('div');
+  wrap.className = 'sc-quick';
+  SC_QUICK.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'sc-quick-btn';
+    btn.textContent = q;
+    btn.onclick = () => { wrap.remove(); scAddMsg('user', q); setTimeout(()=>scReply(q), 400); };
+    wrap.appendChild(btn);
+  });
+  body.appendChild(wrap);
+  body.scrollTop = body.scrollHeight;
+}
+function staticSend(){
+  const input = document.getElementById('scInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  scAddMsg('user', text);
+  setTimeout(()=>scReply(text), 400);
+}
+function scReply(text){
+  const lower = text.toLowerCase();
+  const match = SC_RESPONSES.find(r => r.keys.some(k => lower.includes(k)));
+  scAddMsg('alex', match ? match.reply : SC_DEFAULT);
 }
 
 // ── VIEWS ──
