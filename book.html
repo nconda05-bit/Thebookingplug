@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Book an Appointment — The Booking Plug</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+:root{
+  --bg:#080808;
+  --card:#111111;
+  --card2:#181818;
+  --border:#252525;
+  --white:#FFFFFF;
+  --muted:#888888;
+  --light:#BBBBBB;
+  --green:#1DDB7E;
+  --green-soft:rgba(29,219,126,0.1);
+  --green-border:rgba(29,219,126,0.25);
+  --purple:#8B5CF6;
+}
+
+html,body{height:100%;height:100dvh;}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:fixed;
+  width:100%;
+}
+
+/* ── HEADER ── */
+.bk-header{
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:14px 16px 14px 16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-shrink:0;
+  padding-top:calc(14px + env(safe-area-inset-top));
+}
+.bk-photo{
+  width:48px;height:48px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid var(--green);
+  flex-shrink:0;
+  background:#1a1a1a;
+}
+.bk-photo-init{
+  width:48px;height:48px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#000;
+  flex-shrink:0;
+}
+.bk-info{flex:1;min-width:0;}
+.bk-name{
+  font-family:'Syne',sans-serif;
+  font-size:16px;font-weight:800;
+  color:var(--white);letter-spacing:-0.3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.bk-service{font-size:12px;color:var(--muted);margin-top:2px;}
+.bk-open{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--green-soft);border:1px solid var(--green-border);
+  color:var(--green);font-size:11px;font-weight:700;
+  padding:5px 10px;border-radius:100px;white-space:nowrap;flex-shrink:0;
+}
+.bk-open-dot{width:6px;height:6px;background:var(--green);border-radius:50%;}
+
+/* ── ALEX BAR ── */
+.alex-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px 6px;flex-shrink:0;
+}
+.alex-id{display:flex;align-items:center;gap:7px;}
+.alex-pulse{
+  width:8px;height:8px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 0 0 rgba(29,219,126,0.4);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(29,219,126,0.4);}70%{box-shadow:0 0 0 6px rgba(29,219,126,0);}100%{box-shadow:0 0 0 0 rgba(29,219,126,0);}}
+.alex-lbl{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0.3px;}
+.tbp-logo{font-family:'Syne',sans-serif;font-size:10px;font-weight:800;color:#333;letter-spacing:1.5px;text-transform:uppercase;}
+
+/* ── MESSAGES ── */
+.chat-messages{
+  flex:1;overflow-y:auto;
+  padding:12px 16px 8px;
+  display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:thin;scrollbar-color:#1e1e1e transparent;
+}
+.chat-messages::-webkit-scrollbar{width:3px;}
+.chat-messages::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px;}
+
+.chat-msg{max-width:84%;padding:11px 15px;border-radius:16px;font-size:15px;line-height:1.55;word-wrap:break-word;}
+.chat-msg.alex{
+  background:#161616;border:1px solid #202020;
+  color:#ccc;align-self:flex-start;
+  border-radius:4px 16px 16px 16px;
+}
+.chat-msg.user{
+  background:var(--green);color:#000;
+  align-self:flex-end;font-weight:600;
+  border-radius:16px 16px 4px 16px;
+}
+
+.chat-typing{
+  display:flex;gap:5px;padding:11px 15px;
+  background:#161616;border:1px solid #202020;
+  border-radius:4px 16px 16px 16px;
+  width:fit-content;align-self:flex-start;
+}
+.chat-typing span{
+  width:7px;height:7px;background:#444;border-radius:50%;
+  animation:bounce 1.2s infinite;
+}
+.chat-typing span:nth-child(2){animation-delay:0.2s;}
+.chat-typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
+
+/* ── CONFIRMED BANNER ── */
+.confirmed-banner{
+  margin:8px 16px;
+  background:rgba(29,219,126,0.07);
+  border:1px solid var(--green-border);
+  border-radius:14px;padding:14px 16px;
+  text-align:center;flex-shrink:0;
+}
+.confirmed-banner p{font-size:13px;color:var(--green);font-weight:700;line-height:1.5;}
+
+/* ── INPUT ROW ── */
+.chat-input-row{
+  padding:12px 16px;
+  padding-bottom:calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid #151515;
+  display:flex;gap:8px;
+  background:var(--bg);
+  flex-shrink:0;
+}
+.chat-input{
+  flex:1;
+  background:#161616;border:1.5px solid #222;
+  border-radius:14px;padding:13px 16px;
+  color:#fff;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:16px;outline:none;
+  transition:border-color 0.15s;
+  -webkit-appearance:none;
+}
+.chat-input:focus{border-color:var(--green);}
+.chat-input::placeholder{color:#3a3a3a;}
+.chat-input:disabled{opacity:0.45;cursor:not-allowed;}
+.chat-send{
+  background:var(--green);color:#000;border:none;
+  border-radius:12px;padding:13px 18px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:800;cursor:pointer;font-size:15px;
+  transition:opacity 0.15s;flex-shrink:0;
+}
+.chat-send:hover{opacity:0.88;}
+.chat-send:disabled{opacity:0.3;cursor:not-allowed;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="bk-header">
+  <div id="barberPhoto"></div>
+  <div class="bk-info">
+    <div class="bk-name" id="barberName">Loading…</div>
+    <div class="bk-service" id="barberService">The Booking Plug</div>
+  </div>
+  <div class="bk-open">
+    <div class="bk-open-dot"></div>
+    Open
+  </div>
+</div>
+
+<!-- ALEX LABEL BAR -->
+<div class="alex-bar">
+  <div class="alex-id">
+    <div class="alex-pulse"></div>
+    <span class="alex-lbl">Alex · AI Booking Assistant</span>
+  </div>
+  <div class="tbp-logo">The Booking Plug</div>
+</div>
+
+<!-- MESSAGES -->
+<div class="chat-messages" id="chatMessages"></div>
+
+<!-- CONFIRMED BANNER (hidden until booking confirmed) -->
+<div class="confirmed-banner" id="confirmedBanner" style="display:none;">
+  <p>✅ You're booked! Check your phone for a confirmation text.</p>
+</div>
+
+<!-- INPUT -->
+<div class="chat-input-row">
+  <input
+    class="chat-input"
+    id="chatInput"
+    placeholder="Type your message…"
+    autocomplete="off"
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"
+  >
+  <button class="chat-send" id="chatSendBtn" onclick="sendChat()">Send</button>
+</div>
+
+<script>
+// ── CONFIG ──
+const CLAUDE_API_KEY     = 'YOUR_ANTHROPIC_API_KEY';
+const ONBOARDING_WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/client-onboarding';
+
+// ── URL PARAMS ──
+const p            = new URLSearchParams(window.location.search);
+const barberName   = p.get('name')    || 'Your Barber';
+const barberPhoto  = p.get('photo')   || '';
+const barberSvc    = p.get('service') || 'Cuts & Styles';
+const barberHandle = p.get('handle')  || '';
+
+// ── POPULATE HEADER ──
+document.getElementById('barberName').textContent    = barberName;
+document.getElementById('barberService').textContent = barberSvc + (barberHandle ? ' · ' + barberHandle : '');
+document.title = 'Book with ' + barberName + ' — The Booking Plug';
+
+const photoWrap = document.getElementById('barberPhoto');
+if(barberPhoto){
+  const img = document.createElement('img');
+  img.src = barberPhoto;
+  img.className = 'bk-photo';
+  img.alt = barberName;
+  img.onerror = () => img.replaceWith(makeInitial());
+  photoWrap.appendChild(img);
+} else {
+  photoWrap.appendChild(makeInitial());
+}
+function makeInitial(){
+  const d = document.createElement('div');
+  d.className = 'bk-photo-init';
+  d.textContent = barberName.charAt(0).toUpperCase();
+  return d;
+}
+
+// ── CHAT STATE ──
+let chatHistory = [];
+
+const SYSTEM_PROMPT = `You are Alex, the AI booking assistant for ${barberName} at The Booking Plug — a premium barber booking service.
+
+Your goal is to collect these four pieces of information through friendly, natural conversation:
+1. The client's preferred appointment DATE
+2. The client's preferred appointment TIME
+3. Their FULL NAME
+4. Their PHONE NUMBER
+
+Guidelines:
+- Start by asking for their name, then date and time, then phone. One question per message.
+- Keep replies to 1-3 short sentences. Be warm, friendly, and professional.
+- If they give a vague time (e.g. "afternoon"), ask them to narrow it down.
+- Once you have all four confirmed, send a warm closing confirmation message.
+
+When you send that final confirmation — and ONLY then — append this exact marker as the absolute last line with nothing after it:
+BOOKING_CONFIRMED:{"name":"FULL_NAME","phone":"PHONE_NUMBER","date":"DATE","time":"TIME","barber":"${barberName}"}
+
+Replace placeholders with real values. Never output the marker before you have all four pieces. Never output it more than once.`;
+
+// ── INIT ──
+(function init(){
+  const greeting = `Hey! 👋 I'm Alex, and I'm here to get you booked with ${barberName}. Takes less than a minute! What's your name?`;
+  addMsg('alex', greeting);
+  chatHistory.push({role:'assistant', content:greeting});
+  document.getElementById('chatInput').focus();
+})();
+
+// ── HELPERS ──
+function addMsg(role, text){
+  const wrap = document.getElementById('chatMessages');
+  const div  = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.textContent = text;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function addTyping(){
+  const wrap = document.getElementById('chatMessages');
+  const div  = document.createElement('div');
+  div.className = 'chat-typing';
+  div.id = 'typing';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function removeTyping(){ const t = document.getElementById('typing'); if(t) t.remove(); }
+
+function setBusy(busy){
+  document.getElementById('chatSendBtn').disabled = busy;
+  document.getElementById('chatInput').disabled   = busy;
+}
+
+// ── SEND ──
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text  = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  addMsg('user', text);
+  chatHistory.push({role:'user', content:text});
+  addTyping();
+  setBusy(true);
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers:{
+        'Content-Type': 'application/json',
+        'x-api-key': CLAUDE_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-8',
+        max_tokens: 350,
+        system: SYSTEM_PROMPT,
+        messages: chatHistory
+      })
+    });
+
+    const data  = await res.json();
+    removeTyping();
+    const raw   = data.content?.[0]?.text || "Got it! One moment…";
+    const match = raw.match(/\nBOOKING_CONFIRMED:(\{[\s\S]*?\})\s*$/);
+    const reply = match ? raw.replace(/\nBOOKING_CONFIRMED:[\s\S]*$/, '').trim() : raw;
+
+    addMsg('alex', reply);
+    chatHistory.push({role:'assistant', content:reply});
+
+    if(match){
+      try{
+        const payload = JSON.parse(match[1]);
+        fetch(ONBOARDING_WEBHOOK, {
+          method: 'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+      }catch(_){}
+      document.getElementById('confirmedBanner').style.display = 'block';
+      document.getElementById('chatInput').placeholder = 'Booking confirmed! 🎉';
+      setBusy(true);
+    }
+
+  }catch(e){
+    removeTyping();
+    addMsg('alex', "I'm having a quick hiccup — give me a sec and try again! 🙏");
+    setBusy(false);
+  }finally{
+    if(!document.getElementById('chatInput').disabled){
+      setBusy(false);
+      document.getElementById('chatInput').focus();
+    }
+  }
+}
+</script>
+</body>
+</html>
