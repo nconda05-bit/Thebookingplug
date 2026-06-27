@@ -54,19 +54,27 @@ export default async function handler(req, res) {
       to: email,
       subject: 'Welcome to The Booking Plug 🎉🔌',
       html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#080808;color:#fff;border-radius:12px;padding:40px;">
-        <h1 style="font-size:28px;margin-bottom:8px;">Welcome to The Booking Plug 🎉🔌</h1>
-        <p style="color:#aaa;margin-bottom:32px;">Hey ${name}, your account is ready. Here's how to log in:</p>
+        <div style="font-size:13px;font-weight:800;color:#1DDB7E;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px;">🔌 THE BOOKING PLUG</div>
+        <h1 style="font-size:26px;font-weight:800;letter-spacing:-0.8px;margin:0 0 10px;">Welcome, ${name}! 🎉</h1>
+        <p style="color:#888;margin:0 0 32px;font-size:14px;line-height:1.7;">Your account is ready. Here are your login credentials:</p>
         <div style="background:#111;border:1px solid #252525;border-radius:10px;padding:24px;margin-bottom:28px;">
-          <p style="margin:0 0 12px;font-size:15px;font-weight:700;color:#fff;">How to access your portal:</p>
-          <ol style="margin:0;padding-left:20px;color:#bbb;font-size:14px;line-height:2;">
+          <p style="margin:0 0 16px;font-size:15px;font-weight:700;color:#fff;">Your login details:</p>
+          <p style="margin:0 0 8px;font-size:14px;color:#aaa;">Email: <strong style="color:#fff;">${email}</strong></p>
+          <p style="margin:0;font-size:14px;color:#aaa;">Temporary password: <strong style="color:#1DDB7E;font-family:monospace;font-size:16px;">${temp_password}</strong></p>
+        </div>
+        <div style="background:#111;border:1px solid #252525;border-radius:10px;padding:24px;margin-bottom:28px;">
+          <p style="margin:0 0 12px;font-size:15px;font-weight:700;color:#fff;">How to sign in:</p>
+          <ol style="margin:0;padding-left:20px;color:#bbb;font-size:14px;line-height:2.2;">
             <li>Go to <strong style="color:#1DDB7E;">thebookingplug.net/portal.html</strong></li>
-            <li>Enter your email address: <strong style="color:#fff;">${email}</strong></li>
-            <li>Click <strong style="color:#fff;">"Send Login Link"</strong></li>
-            <li>Check your inbox and click the magic link to sign in instantly</li>
+            <li>Enter your email and the temporary password above</li>
+            <li>Once you're in, go to <strong style="color:#fff;">Account Settings</strong> to set your own password</li>
           </ol>
         </div>
         <a href="https://thebookingplug.net/portal.html" style="display:inline-block;background:#1DDB7E;color:#000;font-weight:800;font-size:15px;padding:14px 28px;border-radius:8px;text-decoration:none;">Go to My Portal →</a>
-        <p style="color:#555;font-size:13px;margin-top:28px;">No password needed — just enter your email and we'll send you a secure login link every time.</p>
+        <p style="color:#555;font-size:13px;margin-top:28px;line-height:1.6;">If you ever forget your password, click "Forgot password?" on the portal login page and we'll send you a reset link.</p>
+        <div style="border-top:1px solid #252525;margin-top:32px;padding-top:20px;">
+          <p style="font-size:12px;color:#444;margin:0;">The Booking Plug &middot; thebookingplug.net</p>
+        </div>
       </div>`
     })
   });

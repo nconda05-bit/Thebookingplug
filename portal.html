@@ -180,16 +180,12 @@ a{color:inherit;text-decoration:none;}
 
     <div id="loginForm">
       <label class="field-label" for="loginEmail">Email address</label>
-      <input class="field-input" type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')sendLink()">
-      <button class="btn-primary" id="sendBtn" onclick="sendLink()">Send Login Link →</button>
+      <input class="field-input" type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')login()">
+      <label class="field-label" for="loginPassword" style="margin-top:14px;">Password</label>
+      <input class="field-input" type="password" id="loginPassword" placeholder="Your password" onkeydown="if(event.key==='Enter')login()">
+      <button class="btn-primary" id="loginBtn" onclick="login()">Sign In →</button>
       <div class="login-error" id="loginError"></div>
       <button class="forgot-link" onclick="sendPasswordReset()">Forgot password?</button>
-    </div>
-
-    <div id="loginSent" style="display:none;" class="sent-wrap">
-      <div class="sent-icon">📬</div>
-      <div class="sent-title">Check your email!</div>
-      <p class="sent-sub">We sent a secure login link to<br><strong id="sentEmail"></strong><br><br>Click the link to access your portal.</p>
     </div>
 
     <div id="loginReset" style="display:none;" class="sent-wrap">
@@ -296,26 +292,22 @@ sb.auth.onAuthStateChange((event, _session) => {
   else { show('scLogin'); }
 })();
 
-// ── SEND MAGIC LINK ──
-async function sendLink(){
+// ── EMAIL + PASSWORD LOGIN ──
+async function login(){
   const email = document.getElementById('loginEmail').value.trim();
-  if(!email){ showError('Please enter your email address.'); return; }
-  const btn = document.getElementById('sendBtn');
-  btn.disabled = true; btn.textContent = 'Sending…';
+  const password = document.getElementById('loginPassword').value;
+  if(!email || !password){ showError('Enter your email and password.'); return; }
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
   hideError();
-  const r = await fetch('/api/send-magic-link', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, type: 'magiclink' })
-  });
-  if(!r.ok){
-    const d = await r.json().catch(() => ({}));
-    showError(d.error || 'Failed to send link. Please try again.');
-    btn.disabled = false; btn.textContent = 'Send Login Link →';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){
+    showError(error.message === 'Invalid login credentials'
+      ? 'Incorrect email or password. Check your welcome email for your temporary password.'
+      : error.message);
+    btn.disabled = false; btn.textContent = 'Sign In →';
   } else {
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('sentEmail').textContent = email;
-    document.getElementById('loginSent').style.display = 'block';
+    await loadPortal(data.user);
   }
 }
 
@@ -495,11 +487,11 @@ async function logout(){
 function resetToLogin(){
   show('scLogin');
   document.getElementById('loginForm').style.display = 'block';
-  document.getElementById('loginSent').style.display = 'none';
   document.getElementById('loginReset').style.display = 'none';
   document.getElementById('loginEmail').value = '';
-  document.getElementById('sendBtn').disabled = false;
-  document.getElementById('sendBtn').textContent = 'Send Login Link →';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'Sign In →';
   document.getElementById('qrCode').innerHTML = '';
   hideError();
 }
