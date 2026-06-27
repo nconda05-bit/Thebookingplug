@@ -151,6 +151,14 @@ a{color:inherit;text-decoration:none;}
 /* ── SECTION LABEL ── */
 .section-eye{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
 
+/* ── FORGOT PASSWORD ── */
+.forgot-link{background:none;border:none;display:block;width:100%;text-align:center;margin-top:14px;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:color 0.15s;padding:4px;}
+.forgot-link:hover{color:var(--green);}
+
+/* ── RESET SCREEN ── */
+#scReset{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.field-group{margin-bottom:18px;}
+
 /* ── RESPONSIVE ── */
 @media(max-width:480px){
   .login-card{padding:28px 20px;}
@@ -175,6 +183,7 @@ a{color:inherit;text-decoration:none;}
       <input class="field-input" type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')sendLink()">
       <button class="btn-primary" id="sendBtn" onclick="sendLink()">Send Login Link →</button>
       <div class="login-error" id="loginError"></div>
+      <button class="forgot-link" onclick="sendPasswordReset()">Forgot password?</button>
     </div>
 
     <div id="loginSent" style="display:none;" class="sent-wrap">
@@ -182,6 +191,27 @@ a{color:inherit;text-decoration:none;}
       <div class="sent-title">Check your email!</div>
       <p class="sent-sub">We sent a secure login link to<br><strong id="sentEmail"></strong><br><br>Click the link to access your portal.</p>
     </div>
+
+    <div id="loginReset" style="display:none;" class="sent-wrap">
+      <div class="sent-icon">🔑</div>
+      <div class="sent-title">Reset link sent!</div>
+      <p class="sent-sub">We sent a password reset link to<br><strong id="resetEmail"></strong><br><br>Click the link in your email to set a new password.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SET NEW PASSWORD SCREEN ═══ -->
+<div id="scReset" class="screen">
+  <div class="login-card">
+    <div class="login-plug">🔌 The Booking Plug</div>
+    <h1 class="login-title">Set New Password</h1>
+    <p class="login-sub">Enter a new password for your account.</p>
+    <div class="field-group">
+      <label class="field-label" for="newPassword">New Password</label>
+      <input class="field-input" type="password" id="newPassword" placeholder="At least 8 characters" onkeydown="if(event.key==='Enter')updatePassword()">
+    </div>
+    <button class="btn-primary" id="updatePwBtn" onclick="updatePassword()">Update Password →</button>
+    <div class="login-error" id="resetError"></div>
   </div>
 </div>
 
@@ -245,6 +275,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // causing a premature null-session check that shows the login screen.
 sb.auth.onAuthStateChange((event, _session) => {
   if(event === 'SIGNED_OUT') resetToLogin();
+  if(event === 'PASSWORD_RECOVERY') show('scReset');
 });
 
 // Primary auth check. getSession() waits for Supabase to detect and
@@ -454,11 +485,51 @@ function resetToLogin(){
   show('scLogin');
   document.getElementById('loginForm').style.display = 'block';
   document.getElementById('loginSent').style.display = 'none';
+  document.getElementById('loginReset').style.display = 'none';
   document.getElementById('loginEmail').value = '';
   document.getElementById('sendBtn').disabled = false;
   document.getElementById('sendBtn').textContent = 'Send Login Link →';
   document.getElementById('qrCode').innerHTML = '';
   hideError();
+}
+
+// ── FORGOT PASSWORD ──
+async function sendPasswordReset(){
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email){ showError('Enter your email address first.'); return; }
+  hideError();
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: SITE_URL + '/portal.html'
+  });
+  if(error){ showError(error.message); return; }
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('loginSent').style.display = 'none';
+  document.getElementById('resetEmail').textContent = email;
+  document.getElementById('loginReset').style.display = 'block';
+}
+
+// ── UPDATE PASSWORD (after clicking reset link) ──
+async function updatePassword(){
+  const pw = document.getElementById('newPassword').value;
+  const errEl = document.getElementById('resetError');
+  if(pw.length < 8){
+    errEl.textContent = 'Password must be at least 8 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('updatePwBtn');
+  btn.disabled = true; btn.textContent = 'Updating…';
+  const { error } = await sb.auth.updateUser({ password: pw });
+  if(error){
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Update Password →';
+    return;
+  }
+  // Password set — load the portal
+  const { data: { session } } = await sb.auth.getSession();
+  if(session) await loadPortal(session.user);
+  else show('scLogin');
 }
 
 // ── UTILS ──

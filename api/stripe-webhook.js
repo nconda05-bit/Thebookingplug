@@ -11,6 +11,25 @@ export default async function handler(req, res) {
   const stripe_subscription_id = session.subscription;
   const plan = session.metadata?.plan || 'starter';
 
+  // Generate a temp password for the Supabase auth user
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let temp_password = '';
+  for(let i = 0; i < 12; i++) temp_password += chars.charAt(Math.floor(Math.random() * chars.length));
+
+  // Create Supabase auth user via admin API (email_confirm:true skips confirmation email)
+  // Uses service role key — must be set as SUPABASE_SERVICE_KEY env var in Vercel
+  // 422 = user already exists; safe to continue in that case
+  const authRes = await fetch('https://zeumzuwbzagakwokzhpz.supabase.co/auth/v1/admin/users', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': process.env.SUPABASE_SERVICE_KEY,
+      'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`
+    },
+    body: JSON.stringify({ email, password: temp_password, email_confirm: true })
+  });
+  console.log('auth user create status:', authRes.status);
+
   // Save to Supabase
   await fetch('https://zeumzuwbzagakwokzhpz.supabase.co/rest/v1/clients', {
     method: 'POST',
