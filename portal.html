@@ -189,9 +189,10 @@ a{color:inherit;text-decoration:none;}
     </div>
 
     <div id="loginReset" style="display:none;" class="sent-wrap">
-      <div class="sent-icon">🔑</div>
-      <div class="sent-title">Reset link sent!</div>
-      <p class="sent-sub">We sent a password reset link to<br><strong id="resetEmail"></strong><br><br>Click the link in your email to set a new password.</p>
+      <div class="sent-icon">📬</div>
+      <div class="sent-title">Check your email!</div>
+      <p class="sent-sub">We sent a temporary password to<br><strong id="resetEmail"></strong><br><br>Log in with it, then use <strong>Change Password</strong> in your dashboard to set your own.</p>
+      <button class="forgot-link" style="margin-top:16px;" onclick="document.getElementById('loginReset').style.display='none';document.getElementById('loginForm').style.display='block';">Back to login</button>
     </div>
   </div>
 </div>
@@ -259,16 +260,20 @@ a{color:inherit;text-decoration:none;}
     <div class="card" id="pwCard">
       <div id="pwForm">
         <div style="margin-bottom:14px;">
+          <label class="field-label" for="pwCurrent">Current Password</label>
+          <input class="field-input" type="password" id="pwCurrent" placeholder="Your current or temp password" style="margin-top:6px;">
+        </div>
+        <div style="margin-bottom:14px;">
           <label class="field-label" for="pwNew">New Password</label>
           <input class="field-input" type="password" id="pwNew" placeholder="At least 8 characters" style="margin-top:6px;">
         </div>
         <div style="margin-bottom:18px;">
-          <label class="field-label" for="pwConfirm">Confirm Password</label>
+          <label class="field-label" for="pwConfirm">Confirm New Password</label>
           <input class="field-input" type="password" id="pwConfirm" placeholder="Repeat your new password" style="margin-top:6px;" onkeydown="if(event.key==='Enter')changePassword()">
         </div>
         <button class="btn-copy" id="pwBtn" onclick="changePassword()">Update Password</button>
         <div id="pwError" style="display:none;margin-top:10px;padding:10px 14px;background:#1a0a0a;border:1px solid #5a1a1a;border-radius:8px;color:#ff6b6b;font-size:13px;"></div>
-        <div id="pwSuccess" style="display:none;margin-top:10px;padding:10px 14px;background:#0a1a0f;border:1px solid #1a5a2a;border-radius:8px;color:#1DDB7E;font-size:13px;">Password updated successfully!</div>
+        <div id="pwSuccess" style="display:none;margin-top:10px;padding:10px 14px;background:#0a1a0f;border:1px solid #1a5a2a;border-radius:8px;color:#1DDB7E;font-size:13px;">Password updated! Use your new password next time you log in.</div>
       </div>
     </div>
 
@@ -506,19 +511,22 @@ function resetToLogin(){
   hideError();
 }
 
-// ── FORGOT PASSWORD ──
+// ── FORGOT PASSWORD — emails a temp password directly ──
 async function sendPasswordReset(){
   const email = document.getElementById('loginEmail').value.trim();
   if(!email){ showError('Enter your email address first.'); return; }
   hideError();
-  const r = await fetch('/api/send-magic-link', {
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  const r = await fetch('/api/reset-password', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, type: 'recovery' })
+    body: JSON.stringify({ email })
   });
+  btn.disabled = false;
   if(!r.ok){
     const d = await r.json().catch(() => ({}));
-    showError(d.error || 'Failed to send reset email. Please try again.');
+    showError(d.error || 'Failed to send temp password. Please try again.');
     return;
   }
   document.getElementById('loginForm').style.display = 'none';
@@ -563,16 +571,32 @@ async function updatePassword(){
 
 // ── CHANGE PASSWORD (from inside portal) ──
 async function changePassword(){
-  const pw = document.getElementById('pwNew').value;
-  const pw2 = document.getElementById('pwConfirm').value;
-  const errEl = document.getElementById('pwError');
-  const okEl = document.getElementById('pwSuccess');
+  const currentPw = document.getElementById('pwCurrent').value;
+  const pw        = document.getElementById('pwNew').value;
+  const pw2       = document.getElementById('pwConfirm').value;
+  const errEl     = document.getElementById('pwError');
+  const okEl      = document.getElementById('pwSuccess');
   errEl.style.display = 'none';
-  okEl.style.display = 'none';
-  if(pw.length < 8){ errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; return; }
-  if(pw !== pw2){ errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+  okEl.style.display  = 'none';
+
+  if(!currentPw){ errEl.textContent = 'Enter your current password.'; errEl.style.display = 'block'; return; }
+  if(pw.length < 8){ errEl.textContent = 'New password must be at least 8 characters.'; errEl.style.display = 'block'; return; }
+  if(pw !== pw2){ errEl.textContent = 'New passwords do not match.'; errEl.style.display = 'block'; return; }
+
   const btn = document.getElementById('pwBtn');
   btn.disabled = true; btn.textContent = 'Updating…';
+
+  // Verify current password by re-authenticating
+  const { data: { user: me } } = await sb.auth.getUser();
+  const { error: authErr } = await sb.auth.signInWithPassword({ email: me.email, password: currentPw });
+  if(authErr){
+    errEl.textContent = 'Current password is incorrect.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Update Password';
+    return;
+  }
+
+  // Set the new password
   const { error } = await sb.auth.updateUser({ password: pw });
   if(error){
     errEl.textContent = error.message;
@@ -580,7 +604,9 @@ async function changePassword(){
     btn.disabled = false; btn.textContent = 'Update Password';
     return;
   }
-  document.getElementById('pwNew').value = '';
+
+  document.getElementById('pwCurrent').value = '';
+  document.getElementById('pwNew').value     = '';
   document.getElementById('pwConfirm').value = '';
   btn.disabled = false; btn.textContent = 'Update Password';
   okEl.style.display = 'block';
