@@ -33,11 +33,12 @@ export default async function handler(req, res) {
   const genData = await genRes.json();
   console.log('generate_link response:', genRes.status, JSON.stringify(genData));
 
-  if (!genRes.ok || !genData.properties?.action_link) {
+  // action_link may be at top level or nested in properties
+  const actionLink = genData.action_link || genData.properties?.action_link;
+  if (!genRes.ok || !actionLink) {
+    console.error('send-magic-link: no action_link in response', JSON.stringify(genData));
     return res.status(500).json({ error: 'failed to generate link' });
   }
-
-  const actionLink = genData.properties.action_link;
 
   let subject, html;
 
