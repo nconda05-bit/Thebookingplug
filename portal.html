@@ -175,8 +175,8 @@ a{color:inherit;text-decoration:none;}
 <div id="scLogin" class="screen">
   <div class="login-card">
     <div class="login-plug">🔌 The Booking Plug</div>
-    <h1 class="login-title">Client Portal</h1>
-    <p class="login-sub">Sign in to see your booking link, QR code, and upcoming appointments.</p>
+    <h1 class="login-title">Access Your Dashboard</h1>
+    <p class="login-sub">Enter your credentials to view your booking link, QR code, and appointments.</p>
 
     <div id="loginForm">
       <label class="field-label" for="loginEmail">Email address</label>
@@ -184,8 +184,8 @@ a{color:inherit;text-decoration:none;}
       <label class="field-label" for="loginPassword" style="margin-top:14px;">Password</label>
       <input class="field-input" type="password" id="loginPassword" placeholder="Your password" onkeydown="if(event.key==='Enter')login()">
       <button class="btn-primary" id="loginBtn" onclick="login()">Sign In →</button>
+      <button class="forgot-link" onclick="sendPasswordReset()">Forgot Password?</button>
       <div class="login-error" id="loginError"></div>
-      <button class="forgot-link" onclick="sendPasswordReset()">Forgot password?</button>
     </div>
 
     <div id="loginReset" style="display:none;" class="sent-wrap">
