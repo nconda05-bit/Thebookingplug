@@ -281,7 +281,16 @@ sb.auth.onAuthStateChange((event, _session) => {
 // Primary auth check. getSession() waits for Supabase to detect and
 // exchange the #access_token hash fragment from a magic link redirect
 // before resolving, so the session is always accurate here.
+//
+// Exception: password reset links land here with type=recovery in the hash.
+// getSession() would exchange that token and return a session, causing
+// loadPortal() to run and conflict with (or pre-empt) the PASSWORD_RECOVERY
+// event. Show scReset immediately and let onAuthStateChange confirm it.
 (async () => {
+  if(window.location.hash.includes('type=recovery')){
+    show('scReset');
+    return;
+  }
   const { data: { session } } = await sb.auth.getSession();
   if(session) { await loadPortal(session.user); }
   else { show('scLogin'); }
