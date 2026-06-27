@@ -1604,6 +1604,7 @@ async function submitConsult(){
       current_booking:method,message:msg,status:'new'
     }]);
     if(error) throw new Error(error.message);
+    await fetch("/api/notify-lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({businessName:biz,name,email,phone,message:msg})});
     showMsg(fb,'🎉 Request received! We\'ll reach out within 24 hours.','success');
     ['c-biz','c-name','c-email','c-phone','c-msg'].forEach(id=>document.getElementById(id).value='');
     ['c-type','c-size','c-method'].forEach(id=>document.getElementById(id).selectedIndex=0);
