@@ -303,12 +303,14 @@ async function sendLink(){
   const btn = document.getElementById('sendBtn');
   btn.disabled = true; btn.textContent = 'Sending…';
   hideError();
-  const { error } = await sb.auth.signInWithOtp({
-    email,
-    options:{ emailRedirectTo: SITE_URL + '/portal.html' }
+  const r = await fetch('/api/send-magic-link', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, type: 'magiclink' })
   });
-  if(error){
-    showError(error.message);
+  if(!r.ok){
+    const d = await r.json().catch(() => ({}));
+    showError(d.error || 'Failed to send link. Please try again.');
     btn.disabled = false; btn.textContent = 'Send Login Link →';
   } else {
     document.getElementById('loginForm').style.display = 'none';
@@ -507,10 +509,16 @@ async function sendPasswordReset(){
   const email = document.getElementById('loginEmail').value.trim();
   if(!email){ showError('Enter your email address first.'); return; }
   hideError();
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: SITE_URL + '/portal.html'
+  const r = await fetch('/api/send-magic-link', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, type: 'recovery' })
   });
-  if(error){ showError(error.message); return; }
+  if(!r.ok){
+    const d = await r.json().catch(() => ({}));
+    showError(d.error || 'Failed to send reset email. Please try again.');
+    return;
+  }
   document.getElementById('loginForm').style.display = 'none';
   document.getElementById('loginSent').style.display = 'none';
   document.getElementById('resetEmail').textContent = email;
