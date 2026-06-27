@@ -3,11 +3,24 @@ const SUPABASE_URL = 'https://zeumzuwbzagakwokzhpz.supabase.co';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
+  // Log full payload so we can see exactly what Supabase sends
+  console.log('auth-email hook payload:', JSON.stringify(req.body));
+
   const { user, email_data } = req.body || {};
   const email = user?.email;
-  const { email_action_type, token_hash, redirect_to } = email_data || {};
+
+  // Supabase sends token_hash; older versions may send token — handle both
+  const email_action_type = email_data?.email_action_type;
+  const token_hash = email_data?.token_hash || email_data?.token;
+  const redirect_to = email_data?.redirect_to;
 
   if (!email || !email_action_type || !token_hash) {
+    console.log('auth-email: missing fields', { email, email_action_type, token_hash });
+    return res.status(200).json({});
+  }
+
+  if (!process.env.RESEND_KEY) {
+    console.error('auth-email: RESEND_KEY not set');
     return res.status(200).json({});
   }
 
@@ -46,26 +59,34 @@ export default async function handler(req, res) {
   </div>
 </div>`;
   } else {
-    // Unhandled type — return success so Supabase doesn't block the auth flow
+    console.log('auth-email: unhandled type', email_action_type);
     return res.status(200).json({});
   }
 
-  const r = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.RESEND_KEY}`
-    },
-    body: JSON.stringify({
-      from: 'The Booking Plug <noreply@thebookingplug.net>',
-      to: email,
-      subject,
-      html
-    })
-  });
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.RESEND_KEY}`
+      },
+      body: JSON.stringify({
+        from: 'The Booking Plug <noreply@thebookingplug.net>',
+        to: email,
+        subject,
+        html
+      })
+    });
 
-  const data = await r.json();
-  console.log('auth-email sent:', email_action_type, email, JSON.stringify(data));
+    const data = await r.json();
+    if (!r.ok) {
+      console.error('auth-email Resend error:', JSON.stringify(data));
+    } else {
+      console.log('auth-email sent:', email_action_type, email, data.id);
+    }
+  } catch (err) {
+    console.error('auth-email fetch error:', err.message);
+  }
 
   return res.status(200).json({});
 }
