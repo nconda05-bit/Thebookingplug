@@ -1581,6 +1581,45 @@ function cTab(id,btn){document.querySelectorAll('#view-client .tab').forEach(t=>
 function downloadQR(){const a=document.createElement('a');a.href=document.getElementById('qr-img').src;a.download='booking-qr.png';a.click();}
 
 // ── CONSULTATION FORM ──
+async function submitConsult(){
+  const biz=document.getElementById('c-biz').value.trim();
+  const name=document.getElementById('c-name').value.trim();
+  const email=document.getElementById('c-email').value.trim();
+  const phone=document.getElementById('c-phone').value.trim();
+  const type=document.getElementById('c-type').value;
+  const size=document.getElementById('c-size').value;
+  const method=document.getElementById('c-method').value;
+  const msg=document.getElementById('c-msg').value.trim();
+  const fb=document.getElementById('c-feedback');
+
+  if(!biz||!name||!email||!type){showMsg(fb,'Please fill in all required fields (Business Name, Your Name, Email, Business Type) 📝','error');return;}
+  if(!email.includes('@')){showMsg(fb,'Please enter a valid email address 📧','error');return;}
+
+  showMsg(fb,'Sending your request...','');
+
+  try{
+    const [leadRes, notifyRes] = await Promise.all([
+      sb.from('leads').insert([{
+        business_name:biz,owner_name:name,email,phone,
+        business_type:type,team_size:size,
+        current_booking:method,message:msg,status:'new'
+      }]),
+      fetch('/api/notify-lead',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({businessName:biz,name,email,phone,message:msg})
+      })
+    ]);
+    if(leadRes.error) throw new Error(leadRes.error.message);
+    if(!notifyRes.ok){const d=await notifyRes.json().catch(()=>({}));throw new Error(d.error||'Notification failed');}
+    showMsg(fb,'🎉 Request received! We\'ll reach out within 24 hours.','success');
+    ['c-biz','c-name','c-email','c-phone','c-msg'].forEach(id=>document.getElementById(id).value='');
+    ['c-type','c-size','c-method'].forEach(id=>document.getElementById(id).selectedIndex=0);
+  }catch(e){
+    showMsg(fb,'❌ Something went wrong: '+e.message+'. Please email us at Nconda05@gmail.com','error');
+  }
+}
+
 async function submitConsult_OLD_DISABLED(){
   const biz=document.getElementById('c-biz').value.trim();
   const name=document.getElementById('c-name').value.trim();
