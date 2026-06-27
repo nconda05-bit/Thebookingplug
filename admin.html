@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — The Booking Plug</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#080808;--surface:#111111;--border:#1e1e1e;--green:#1DDB7E;--text:#ffffff;--muted:#666666;--red:#ff4d4d;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── SCREENS ── */
+.screen{display:none;}
+.screen.on{display:block;}
+
+/* ── LOGIN ── */
+#scLogin.on{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:400px;}
+.login-plug{font-size:12px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:24px;}
+.login-title{font-size:26px;font-weight:800;letter-spacing:-0.8px;margin-bottom:6px;}
+.login-sub{color:var(--muted);font-size:13px;margin-bottom:28px;line-height:1.6;}
+.badge{display:inline-block;background:#1a2a1a;color:var(--green);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;border:1px solid #1DDB7E33;margin-left:8px;vertical-align:middle;}
+.field-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
+.field-input{display:block;width:100%;margin-top:6px;padding:12px 14px;background:#0d0d0d;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s;}
+.field-input:focus{border-color:var(--green);}
+.field-group{margin-bottom:16px;}
+.btn-primary{display:block;width:100%;padding:13px;background:var(--green);color:#000;font-weight:800;font-size:14px;border:none;border-radius:10px;cursor:pointer;font-family:inherit;margin-top:20px;transition:opacity 0.15s;}
+.btn-primary:disabled{opacity:0.5;cursor:default;}
+.login-error{display:none;margin-top:12px;padding:10px 14px;background:#1a0808;border:1px solid #3a1010;border-radius:8px;color:var(--red);font-size:13px;}
+
+/* ── ADMIN LAYOUT ── */
+#scAdmin.on{display:block;}
+.a-header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10;}
+.a-logo{font-size:13px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
+.a-logout{background:none;border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.a-logout:hover{border-color:var(--red);color:var(--red);}
+.a-body{max-width:1100px;margin:0 auto;padding:28px 20px;}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
+@media(max-width:700px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.stat-val{font-size:28px;font-weight:800;color:var(--green);}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600;}
+
+/* ── SECTION ── */
+.section-head{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:32px;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{text-align:left;padding:12px 16px;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.tbl td{padding:13px 16px;border-bottom:1px solid #141414;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#131313;}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.pill-green{background:#0d2018;color:var(--green);border:1px solid #1a4030;}
+.pill-gray{background:#1a1a1a;color:var(--muted);border:1px solid #252525;}
+.pill-yellow{background:#1a1500;color:#f0c040;border:1px solid #3a3000;}
+.empty{padding:32px;text-align:center;color:var(--muted);font-size:13px;}
+.loading-state{padding:32px;text-align:center;color:var(--muted);font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="scLogin" class="screen">
+  <div class="login-card">
+    <div class="login-plug">🔌 The Booking Plug <span class="badge">Admin</span></div>
+    <h1 class="login-title">Admin Portal</h1>
+    <p class="login-sub">Owner access only.</p>
+    <div class="field-group">
+      <label class="field-label">Email address</label>
+      <input class="field-input" type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Password</label>
+      <input class="field-input" type="password" id="loginPassword" placeholder="Your password" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn-primary" id="loginBtn" onclick="login()">Sign In →</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN DASHBOARD ═══ -->
+<div id="scAdmin" class="screen">
+
+  <div class="a-header">
+    <div class="a-logo">🔌 The Booking Plug <span class="badge">Admin</span></div>
+    <button class="a-logout" onclick="logout()">Log out</button>
+  </div>
+
+  <div class="a-body">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val" id="sClients">—</div><div class="stat-lbl">Total Clients</div></div>
+      <div class="stat"><div class="stat-val" id="sActive">—</div><div class="stat-lbl">Active Plans</div></div>
+      <div class="stat"><div class="stat-val" id="sLeads">—</div><div class="stat-lbl">Total Leads</div></div>
+      <div class="stat"><div class="stat-val" id="sNewLeads">—</div><div class="stat-lbl">New Leads</div></div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="section-head">Clients</div>
+    <div class="card">
+      <div id="clientsTable"><div class="loading-state">Loading…</div></div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="section-head">Consultation Requests</div>
+    <div class="card">
+      <div id="leadsTable"><div class="loading-state">Loading…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://zeumzuwbzagakwokzhpz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpldW16dXdiemFnYWt3b2t6aHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODI4NDUsImV4cCI6MjA5Njg1ODg0NX0.HUYHSdT7mbvNxjayEM_wuuAJCL86ZLifeaVZRc-XLik';
+const ADMIN_EMAILS = ['cashbullysllc@gmail.com', 'nconda05@gmail.com'];
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+sb.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_OUT') { show('scLogin'); }
+});
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && ADMIN_EMAILS.includes(session.user.email.toLowerCase())) {
+    await loadDashboard(session.access_token);
+  } else {
+    if (session) await sb.auth.signOut();
+    show('scLogin');
+  }
+})();
+
+async function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw    = document.getElementById('loginPassword').value;
+  if (!email || !pw) { showErr('Enter your email and password.'); return; }
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  clearErr();
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if (error || !data.session) {
+    showErr(error?.message === 'Invalid login credentials' ? 'Incorrect email or password.' : (error?.message || 'Login failed.'));
+    btn.disabled = false; btn.textContent = 'Sign In →';
+    return;
+  }
+  if (!ADMIN_EMAILS.includes(data.user.email.toLowerCase())) {
+    await sb.auth.signOut();
+    showErr('This account does not have admin access.');
+    btn.disabled = false; btn.textContent = 'Sign In →';
+    return;
+  }
+  await loadDashboard(data.session.access_token);
+}
+
+async function loadDashboard(token) {
+  show('scAdmin');
+  const res = await fetch('/api/admin-data', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) {
+    const { error } = await res.json().catch(() => ({}));
+    document.getElementById('clientsTable').innerHTML = `<div class="empty">Error loading data: ${error || res.status}</div>`;
+    return;
+  }
+  const { clients, leads } = await res.json();
+  renderStats(clients, leads);
+  renderClients(clients);
+  renderLeads(leads);
+}
+
+function renderStats(clients, leads) {
+  document.getElementById('sClients').textContent  = clients.length;
+  document.getElementById('sActive').textContent   = clients.filter(c => c.plan).length;
+  document.getElementById('sLeads').textContent    = leads.length;
+  document.getElementById('sNewLeads').textContent = leads.filter(l => l.status === 'new').length;
+}
+
+function renderClients(clients) {
+  const el = document.getElementById('clientsTable');
+  if (!clients.length) { el.innerHTML = '<div class="empty">No clients yet.</div>'; return; }
+  el.innerHTML = `<table class="tbl">
+    <thead><tr>
+      <th>Name</th><th>Email</th><th>Plan</th><th>Stripe Customer</th><th>Joined</th>
+    </tr></thead>
+    <tbody>
+      ${clients.map(c => `<tr>
+        <td><strong>${esc(c.name || c.business_name || '—')}</strong></td>
+        <td style="color:var(--muted)">${esc(c.email || '—')}</td>
+        <td>${c.plan ? `<span class="pill pill-green">${esc(c.plan)}</span>` : '<span class="pill pill-gray">—</span>'}</td>
+        <td style="color:var(--muted);font-size:11px;font-family:monospace">${c.stripe_customer_id ? esc(c.stripe_customer_id) : '—'}</td>
+        <td style="color:var(--muted)">${c.created_at ? new Date(c.created_at).toLocaleDateString() : '—'}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function renderLeads(leads) {
+  const el = document.getElementById('leadsTable');
+  if (!leads.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
+  el.innerHTML = `<table class="tbl">
+    <thead><tr>
+      <th>Business</th><th>Owner</th><th>Email</th><th>Phone</th><th>Type</th><th>Status</th><th>Date</th>
+    </tr></thead>
+    <tbody>
+      ${leads.map(l => `<tr>
+        <td><strong>${esc(l.business_name || '—')}</strong></td>
+        <td>${esc(l.owner_name || '—')}</td>
+        <td style="color:var(--muted)">${esc(l.email || '—')}</td>
+        <td style="color:var(--muted)">${esc(l.phone || '—')}</td>
+        <td style="color:var(--muted)">${esc(l.business_type || '—')}</td>
+        <td>${statusPill(l.status)}</td>
+        <td style="color:var(--muted)">${l.created_at ? new Date(l.created_at).toLocaleDateString() : '—'}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function statusPill(s) {
+  if (s === 'new')       return '<span class="pill pill-green">New</span>';
+  if (s === 'contacted') return '<span class="pill pill-yellow">Contacted</span>';
+  return `<span class="pill pill-gray">${esc(s || '—')}</span>`;
+}
+
+async function logout() {
+  await sb.auth.signOut();
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+function showErr(msg) { const e = document.getElementById('loginError'); e.textContent = msg; e.style.display = 'block'; }
+function clearErr()   { document.getElementById('loginError').style.display = 'none'; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
