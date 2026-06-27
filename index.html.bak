@@ -1581,7 +1581,7 @@ function cTab(id,btn){document.querySelectorAll('#view-client .tab').forEach(t=>
 function downloadQR(){const a=document.createElement('a');a.href=document.getElementById('qr-img').src;a.download='booking-qr.png';a.click();}
 
 // ── CONSULTATION FORM ──
-async function submitConsult_OLD_DISABLED(){
+async function submitConsult(){
   const biz=document.getElementById('c-biz').value.trim();
   const name=document.getElementById('c-name').value.trim();
   const email=document.getElementById('c-email').value.trim();
@@ -1604,6 +1604,7 @@ async function submitConsult_OLD_DISABLED(){
       current_booking:method,message:msg,status:'new'
     }]);
     if(error) throw new Error(error.message);
+    await fetch("/api/notify-lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({businessName:biz,name,email,phone,message:msg})});
     showMsg(fb,'🎉 Request received! We\'ll reach out within 24 hours.','success');
     ['c-biz','c-name','c-email','c-phone','c-msg'].forEach(id=>document.getElementById(id).value='');
     ['c-type','c-size','c-method'].forEach(id=>document.getElementById(id).selectedIndex=0);
