@@ -67,7 +67,7 @@ export default async function handler(req, res) {
           <ol style="margin:0;padding-left:20px;color:#bbb;font-size:14px;line-height:2.2;">
             <li>Go to <strong style="color:#1DDB7E;">thebookingplug.net/portal.html</strong></li>
             <li>Enter your email and the temporary password above</li>
-            <li>Once you're in, go to <strong style="color:#fff;">Account Settings</strong> to set your own password</li>
+            <li>Once you're in, scroll down to <strong style="color:#fff;">Change Password</strong> to set your own password</li>
           </ol>
         </div>
         <a href="https://thebookingplug.net/portal.html" style="display:inline-block;background:#1DDB7E;color:#000;font-weight:800;font-size:15px;padding:14px 28px;border-radius:8px;text-decoration:none;">Go to My Portal →</a>
