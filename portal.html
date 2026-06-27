@@ -281,9 +281,18 @@ async function sendLink(){
 async function loadPortal(user){
   show('scPortal');
 
-  // Fetch client record
+  // Fetch client record (ilike = case-insensitive exact match; auth lowercases
+  // emails but the admin panel may store them with mixed casing)
   const { data: client, error } = await sb
-    .from('clients').select('*').eq('email', user.email).maybeSingle();
+    .from('clients').select('*').ilike('email', user.email).maybeSingle();
+
+  if(error){
+    await sb.auth.signOut();
+    show('scLogin');
+    showError('Could not load your account (' + error.message + '). Please contact The Booking Plug.');
+    document.getElementById('loginForm').style.display = 'block';
+    return;
+  }
 
   if(!client){
     await sb.auth.signOut();

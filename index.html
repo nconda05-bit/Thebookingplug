@@ -1529,7 +1529,7 @@ async function addClient(){
 async function loadClientView(user){
   document.getElementById('portal-email-disp').textContent=user.email;
   showView('client');
-  const {data:client}=await sb.from('clients').select('*').eq('email',user.email).single();
+  const {data:client}=await sb.from('clients').select('*').ilike('email',user.email).maybeSingle();
   if(client){
     document.getElementById('c-bizname').textContent=client.business_name+' 🏪';
     const bookingUrl=window.location.origin+'?book='+client.id;
