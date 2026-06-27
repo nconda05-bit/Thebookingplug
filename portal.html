@@ -265,23 +265,15 @@ const SITE_URL     = 'https://thebookingplug.net';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── AUTH ──
-// Only handle explicit sign-outs via the listener.
-// Do NOT use onAuthStateChange for initial load — it fires before
-// Supabase has processed the magic link token in the URL hash,
-// causing a premature null-session check that shows the login screen.
+// Track recovery mode so SIGNED_OUT (which fires during token exchange)
+// doesn't kick the user to the login screen while they're setting a password.
+let inRecovery = window.location.hash.includes('type=recovery');
+
 sb.auth.onAuthStateChange((event, _session) => {
-  if(event === 'SIGNED_OUT') resetToLogin();
-  if(event === 'PASSWORD_RECOVERY') show('scReset');
+  if(event === 'SIGNED_OUT' && !inRecovery) resetToLogin();
+  if(event === 'PASSWORD_RECOVERY') { inRecovery = true; show('scReset'); }
 });
 
-// Primary auth check. getSession() waits for Supabase to detect and
-// exchange the #access_token hash fragment from a magic link redirect
-// before resolving, so the session is always accurate here.
-//
-// Exception: password reset links land here with type=recovery in the hash.
-// getSession() would exchange that token and return a session, causing
-// loadPortal() to run and conflict with (or pre-empt) the PASSWORD_RECOVERY
-// event. Show scReset immediately and let onAuthStateChange confirm it.
 (async () => {
   if(window.location.hash.includes('type=recovery')){
     show('scReset');
@@ -527,6 +519,11 @@ async function updatePassword(){
   }
   const btn = document.getElementById('updatePwBtn');
   btn.disabled = true; btn.textContent = 'Updating…';
+
+  // Grab the user's email before updating (recovery session is still valid here)
+  const { data: { user: currentUser } } = await sb.auth.getUser();
+  const userEmail = currentUser?.email;
+
   const { error } = await sb.auth.updateUser({ password: pw });
   if(error){
     errEl.textContent = error.message;
@@ -534,10 +531,16 @@ async function updatePassword(){
     btn.disabled = false; btn.textContent = 'Update Password →';
     return;
   }
-  // Password set — load the portal
-  const { data: { session } } = await sb.auth.getSession();
-  if(session) await loadPortal(session.user);
-  else show('scLogin');
+
+  // Recovery session expires after updateUser — sign in fresh with the new password
+  inRecovery = false;
+  if(userEmail){
+    const { data, error: signInErr } = await sb.auth.signInWithPassword({ email: userEmail, password: pw });
+    if(!signInErr && data.user) { await loadPortal(data.user); return; }
+  }
+  // Fallback: send them to login with a success message
+  show('scLogin');
+  showError('Password updated! Sign in with your new password.');
 }
 
 // ── UTILS ──
