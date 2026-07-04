@@ -31,6 +31,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .btn-primary{display:block;width:100%;padding:13px;background:var(--green);color:#000;font-weight:800;font-size:14px;border:none;border-radius:10px;cursor:pointer;font-family:inherit;margin-top:20px;transition:opacity 0.15s;}
 .btn-primary:disabled{opacity:0.5;cursor:default;}
 .login-error{display:none;margin-top:12px;padding:10px 14px;background:#1a0808;border:1px solid #3a1010;border-radius:8px;color:var(--red);font-size:13px;}
+.forgot-link{background:none;border:none;display:block;width:100%;text-align:center;margin-top:14px;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;transition:color 0.15s;padding:4px;}
+.forgot-link:hover{color:var(--green);}
+.sent-wrap{text-align:center;padding:8px 0;}
+.sent-icon{font-size:40px;margin-bottom:16px;}
+.sent-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:8px;}
+.sent-sub{font-size:14px;color:var(--muted);line-height:1.6;}
+.sent-sub strong{color:var(--text);}
 
 /* ── ADMIN LAYOUT ── */
 #scAdmin.on{display:block;}
@@ -73,16 +80,26 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     <div class="login-plug">🔌 The Booking Plug <span class="badge">Admin</span></div>
     <h1 class="login-title">Admin Portal</h1>
     <p class="login-sub">Owner access only.</p>
-    <div class="field-group">
-      <label class="field-label">Email address</label>
-      <input class="field-input" type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')login()">
+    <div id="loginForm">
+      <div class="field-group">
+        <label class="field-label">Email address</label>
+        <input class="field-input" type="email" id="loginEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <input class="field-input" type="password" id="loginPassword" placeholder="Your password" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <button class="btn-primary" id="loginBtn" onclick="login()">Sign In →</button>
+      <button class="forgot-link" onclick="sendPasswordReset()">Forgot Password?</button>
+      <div class="login-error" id="loginError"></div>
     </div>
-    <div class="field-group">
-      <label class="field-label">Password</label>
-      <input class="field-input" type="password" id="loginPassword" placeholder="Your password" onkeydown="if(event.key==='Enter')login()">
+
+    <div id="loginReset" style="display:none;" class="sent-wrap">
+      <div class="sent-icon">📬</div>
+      <div class="sent-title">Check your email!</div>
+      <p class="sent-sub">We sent a temporary password to<br><strong id="resetEmail"></strong><br><br>Log in with it, then set your own password.</p>
+      <button class="forgot-link" style="margin-top:16px;" onclick="document.getElementById('loginReset').style.display='none';document.getElementById('loginForm').style.display='block';">Back to login</button>
     </div>
-    <button class="btn-primary" id="loginBtn" onclick="login()">Sign In →</button>
-    <div class="login-error" id="loginError"></div>
   </div>
 </div>
 
@@ -230,6 +247,28 @@ function statusPill(s) {
   if (s === 'new')       return '<span class="pill pill-green">New</span>';
   if (s === 'contacted') return '<span class="pill pill-yellow">Contacted</span>';
   return `<span class="pill pill-gray">${esc(s || '—')}</span>`;
+}
+
+async function sendPasswordReset() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showErr('Enter your email address first.'); return; }
+  clearErr();
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  const r = await fetch('/api/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  btn.disabled = false;
+  if (!r.ok) {
+    const d = await r.json().catch(() => ({}));
+    showErr(d.error || 'Failed to send temp password. Please try again.');
+    return;
+  }
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('resetEmail').textContent = email;
+  document.getElementById('loginReset').style.display = 'block';
 }
 
 async function logout() {

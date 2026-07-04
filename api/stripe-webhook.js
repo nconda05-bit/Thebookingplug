@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
   const session = event.data.object;
   const email = session.customer_details?.email;
-  const name = session.customer_details?.name;
+  const name = session.customer_details?.name || 'there';
   const stripe_customer_id = session.customer;
   const stripe_subscription_id = session.subscription;
   const plan = session.metadata?.plan || 'starter';
@@ -15,6 +15,10 @@ export default async function handler(req, res) {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   let temp_password = '';
   for(let i = 0; i < 12; i++) temp_password += chars.charAt(Math.floor(Math.random() * chars.length));
+
+  // Booking-link token — required by book.html's token gate
+  let token = '';
+  for(let i = 0; i < 24; i++) token += chars.charAt(Math.floor(Math.random() * chars.length));
 
   // Create Supabase auth user via admin API (email_confirm:true skips confirmation email)
   // Uses service role key — must be set as SUPABASE_SERVICE_KEY env var in Vercel
@@ -39,7 +43,11 @@ export default async function handler(req, res) {
       'Authorization': `Bearer ${process.env.SUPABASE_KEY}`,
       'Prefer': 'resolution=merge-duplicates'
     },
-    body: JSON.stringify({ email, name, stripe_customer_id, stripe_subscription_id, plan })
+    body: JSON.stringify({
+      email, name, stripe_customer_id, stripe_subscription_id, plan,
+      owner_name: name, business_name: name,
+      token, status: 'active'
+    })
   });
 
   // Send welcome email
@@ -71,7 +79,7 @@ export default async function handler(req, res) {
           </ol>
         </div>
         <a href="https://thebookingplug.net/portal.html" style="display:inline-block;background:#1DDB7E;color:#000;font-weight:800;font-size:15px;padding:14px 28px;border-radius:8px;text-decoration:none;">Go to My Portal →</a>
-        <p style="color:#555;font-size:13px;margin-top:28px;line-height:1.6;">If you ever forget your password, click "Forgot password?" on the portal login page and we'll send you a reset link.</p>
+        <p style="color:#555;font-size:13px;margin-top:28px;line-height:1.6;">If you ever forget your password, click "Forgot Password?" on the portal login page and we'll email you a new temporary password.</p>
         <div style="border-top:1px solid #252525;margin-top:32px;padding-top:20px;">
           <p style="font-size:12px;color:#444;margin:0;">The Booking Plug &middot; thebookingplug.net</p>
         </div>

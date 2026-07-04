@@ -250,7 +250,6 @@ body{
 
 <script>
 // ── CONFIG ──
-const CLAUDE_API_KEY     = 'YOUR_ANTHROPIC_API_KEY';
 const ONBOARDING_WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/client-onboarding';
 const SUPABASE_URL       = 'https://zeumzuwbzagakwokzhpz.supabase.co';
 const SUPABASE_KEY       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpldW16dXdiemFnYWt3b2t6aHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODI4NDUsImV4cCI6MjA5Njg1ODg0NX0.HUYHSdT7mbvNxjayEM_wuuAJCL86ZLifeaVZRc-XLik';
@@ -300,13 +299,14 @@ Your goal is to collect these four pieces of information through friendly, natur
 Guidelines:
 - Start by asking for their name, then date and time, then phone. One question per message.
 - Keep every reply to 1-2 sentences MAX. Be warm, snappy, and direct.
+- If they give a vague date (e.g. "tomorrow", "next Friday"), work out the actual calendar date yourself — today is ${new Date().toDateString()}.
 - If they give a vague time (e.g. "afternoon"), ask them to narrow it down.
 - Once you have all four confirmed, send a warm closing confirmation message.
 
 When you send that final confirmation — and ONLY then — append this exact marker as the absolute last line with nothing after it:
-BOOKING_CONFIRMED:{"name":"FULL_NAME","phone":"PHONE_NUMBER","date":"DATE","time":"TIME","barber":"${barberName}"}
+BOOKING_CONFIRMED:{"name":"FULL_NAME","phone":"PHONE_NUMBER","date":"YYYY-MM-DD","time":"H:MM AM/PM","barber":"${barberName}"}
 
-Replace placeholders with real values. Never output the marker before you have all four pieces. Never output it more than once.`;
+Replace placeholders with real values, using strict YYYY-MM-DD for date and H:MM AM/PM for time. Never output the marker before you have all four pieces. Never output it more than once.`;
 
 // ── TOKEN GATE ──
 async function checkToken(){
@@ -377,18 +377,10 @@ async function sendChat(){
   setBusy(true);
 
   try{
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/chat', {
       method: 'POST',
-      headers:{
-        'Content-Type': 'application/json',
-        'x-api-key': CLAUDE_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers:{ 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        max_tokens: 150,
-        stream: false,
         system: SYSTEM_PROMPT,
         messages: chatHistory
       })
@@ -396,6 +388,7 @@ async function sendChat(){
 
     const data  = await res.json();
     removeTyping();
+    if(!res.ok){ throw new Error(data.error || 'AI request failed.'); }
     const raw   = data.content?.[0]?.text || "Got it! One moment…";
     const match = raw.match(/\nBOOKING_CONFIRMED:(\{[\s\S]*?\})\s*$/);
     const reply = match ? raw.replace(/\nBOOKING_CONFIRMED:[\s\S]*$/, '').trim() : raw;
@@ -406,6 +399,14 @@ async function sendChat(){
     if(match){
       try{
         const payload = JSON.parse(match[1]);
+        await sb.from('bookings').insert([{
+          barber: payload.barber || barberName,
+          customer_name: payload.name,
+          customer_phone: payload.phone,
+          appointment_date: payload.date,
+          appointment_time: payload.time,
+          status: 'confirmed'
+        }]);
         fetch(ONBOARDING_WEBHOOK, {
           method: 'POST',
           headers:{'Content-Type':'application/json'},
