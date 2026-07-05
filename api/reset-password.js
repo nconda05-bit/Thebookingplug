@@ -10,11 +10,24 @@ export default async function handler(req, res) {
   const svc = process.env.SUPABASE_SERVICE_KEY;
   if (!svc) return res.status(500).json({ error: 'Server misconfiguration.' });
 
+  try {
+    return await resetPassword(email, svc, res);
+  } catch (err) {
+    console.error('reset-password: unhandled error', err.message);
+    return res.status(500).json({ error: 'Failed to reset password.' });
+  }
+}
+
+async function resetPassword(email, svc, res) {
   // Find the user by email
   const listRes = await fetch(
     `${SUPABASE_URL}/auth/v1/admin/users?per_page=1000`,
     { headers: { 'apikey': svc, 'Authorization': `Bearer ${svc}` } }
   );
+  if (!listRes.ok) {
+    console.error('reset-password: list users failed', listRes.status, await listRes.text());
+    return res.status(500).json({ error: 'Failed to look up account.' });
+  }
   const listData = await listRes.json();
   const users = listData.users || [];
   const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
