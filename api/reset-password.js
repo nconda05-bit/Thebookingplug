@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     return await resetPassword(email, svc, res);
   } catch (err) {
     console.error('reset-password: unhandled error', err.message);
-    return res.status(500).json({ error: 'Failed to reset password.', debug: { message: err.message } });
+    return res.status(500).json({ error: 'Failed to reset password.' });
   }
 }
 
@@ -27,20 +27,14 @@ async function resetPassword(email, svc, res) {
   const rawText = await listRes.text();
   if (!listRes.ok) {
     console.error('reset-password: list users failed', listRes.status, rawText);
-    return res.status(500).json({
-      error: 'Failed to look up account.',
-      debug: { status: listRes.status, body: rawText.slice(0, 300) }
-    });
+    return res.status(500).json({ error: 'Failed to look up account.' });
   }
   let listData;
   try {
     listData = JSON.parse(rawText);
   } catch (e) {
     console.error('reset-password: list users non-JSON response', rawText.slice(0, 300));
-    return res.status(500).json({
-      error: 'Failed to look up account (bad response).',
-      debug: { body: rawText.slice(0, 300) }
-    });
+    return res.status(500).json({ error: 'Failed to look up account (bad response).' });
   }
   const users = listData.users || [];
   const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
