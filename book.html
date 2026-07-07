@@ -304,17 +304,18 @@ Guidelines:
 - Once you have all four confirmed, send a warm closing confirmation message.
 
 When you send that final confirmation — and ONLY then — append this exact marker as the absolute last line with nothing after it:
-BOOKING_CONFIRMED:{"name":"FULL_NAME","phone":"PHONE_NUMBER","date":"YYYY-MM-DD","time":"H:MM AM/PM","barber":"${barberName}"}
+BOOKING_CONFIRMED:{"name":"FULL_NAME","phone":"PHONE_NUMBER","date":"YYYY-MM-DD","time":"H:MM AM/PM"}
 
 Replace placeholders with real values, using strict YYYY-MM-DD for date and H:MM AM/PM for time. Never output the marker before you have all four pieces. Never output it more than once.`;
 
 // ── TOKEN GATE ──
+let clientId = null;
 async function checkToken(){
   const token = p.get('token');
   if(!token){ showBlocked(); return; }
   try{
     const { data } = await sb.from('clients').select('id').eq('token', token).eq('status','active').maybeSingle();
-    if(data){ showChat(); } else { showBlocked(); }
+    if(data){ clientId = data.id; showChat(); } else { showBlocked(); }
   }catch(_){ showBlocked(); }
 }
 
@@ -400,7 +401,7 @@ async function sendChat(){
       try{
         const payload = JSON.parse(match[1]);
         await sb.from('bookings').insert([{
-          barber: payload.barber || barberName,
+          client_id: clientId,
           customer_name: payload.name,
           customer_phone: payload.phone,
           appointment_date: payload.date,

@@ -359,11 +359,10 @@ async function loadPortal(user){
   document.getElementById('linkBox').textContent = url;
   generateQR(url);
 
-  // Fetch bookings — matched by client name
-  const barberName = client.owner_name || client.business_name || '';
+  // Fetch bookings — matched by client_id (foreign key)
   const { data: bookings } = await sb
     .from('bookings').select('*')
-    .eq('barber', barberName)
+    .eq('client_id', client.id)
     .order('appointment_date', { ascending: true });
 
   const all = bookings || [];
