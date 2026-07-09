@@ -1046,11 +1046,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
 // ── CONFIG ──
 const SUPABASE_URL  = 'https://zeumzuwbzagakwokzhpz.supabase.co';
 const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpldW16dXdiemFnYWt3b2t6aHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODI4NDUsImV4cCI6MjA5Njg1ODg0NX0.HUYHSdT7mbvNxjayEM_wuuAJCL86ZLifeaVZRc-XLik';
-const AVAILABILITY_URL = 'https://cashbullysllc.app.n8n.cloud/webhook/get-availability';
-const ALEX_WEBHOOK     = 'https://cashbullysllc.app.n8n.cloud/webhook/ea22885d-d312-4eb7-ac55-d9e832d9a3f4';
 const CLAUDE_API_KEY   = 'YOUR_ANTHROPIC_API_KEY'; // ⚠️ Do not commit — paste your key here locally
-const CONSULT_WEBHOOK  = 'https://cashbullysllc.app.n8n.cloud/webhook/ea22885d-d312-4eb7-ac55-d9e832d9a3f4';
-const ONBOARDING_WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/client-onboarding';
 const ADMIN_EMAIL      = 'nconda05@gmail.com';
 const DEMO_MODE        = true; // set false on live /book/ page
 
@@ -1107,17 +1103,7 @@ async function wSelectDate(ds,cell){
   cell.classList.add('selected');
   const tc=document.getElementById('wTimeContainer');
   tc.innerHTML='<div class="no-date"><span class="w-spin"></span> Checking availability...</div>';
-  let booked=[];
-  try{
-    const res=await fetch(`${AVAILABILITY_URL}?date=${ds}`);
-    const data=await res.json();
-    booked=(data||[]).map(ev=>{
-      const s=ev.start?.dateTime||ev.start?.date;
-      if(!s)return null;
-      return new Date(s).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
-    }).filter(Boolean);
-  }catch(e){booked=[];}
-  wRenderSlots(booked);
+  wRenderSlots([]);
 }
 
 function wRenderSlots(booked){
@@ -1274,16 +1260,6 @@ async function sendChat(){
     const raw = data.content?.[0]?.text || "Got it! Let me get that sorted for you.";
     const confirmMatch = raw.match(/\nBOOKING_CONFIRMED:(\{[\s\S]*?\})\s*$/);
     const reply = confirmMatch ? raw.replace(/\nBOOKING_CONFIRMED:[\s\S]*$/, '').trim() : raw;
-    if(confirmMatch){
-      try{
-        const payload = JSON.parse(confirmMatch[1]);
-        fetch(ONBOARDING_WEBHOOK, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
-        });
-      }catch(_){}
-    }
     addChatMsg('alex', reply);
     chatHistory.push({role:'assistant', content:reply});
   }catch(e){
@@ -1547,21 +1523,6 @@ async function addClient(){
   const {error}=await sb.from('clients').insert([{business_name:biz,business_type:type,owner_name:owner,email,phone,plan,status:'active'}]);
   if(error){showModalMsg(msg,'❌ '+error.message,'error');return;}
 
-  // Send welcome email via n8n
-  try {
-    await fetch(ONBOARDING_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        business_name: biz,
-        owner_name: owner,
-        email,
-        phone,
-        plan,
-        password: pass
-      })
-    });
-  } catch(e) { console.log('Onboarding email:', e); }
   document.getElementById('n-login-email').textContent=email;
   document.getElementById('n-login-pass').textContent=pass;
   document.getElementById('n-result').style.display='block';

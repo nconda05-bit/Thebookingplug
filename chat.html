@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Your Booking — The Booking Plug</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+:root{
+  --bg:#080808;
+  --card:#111111;
+  --card2:#181818;
+  --border:#252525;
+  --white:#FFFFFF;
+  --muted:#888888;
+  --light:#BBBBBB;
+  --green:#1DDB7E;
+  --green-soft:rgba(29,219,126,0.1);
+  --green-border:rgba(29,219,126,0.25);
+  --purple:#8B5CF6;
+  --danger:#EF4444;
+}
+
+html,body{height:100%;height:100dvh;}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:fixed;
+  width:100%;
+}
+
+/* ── GATE SCREENS ── */
+.gate{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:32px;z-index:999;text-align:center;
+}
+.gate-icon{font-size:44px;margin-bottom:20px;}
+.gate-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--white);margin-bottom:10px;line-height:1.2;}
+.gate-sub{font-size:14px;color:var(--muted);line-height:1.6;max-width:280px;}
+.gate-logo{position:absolute;bottom:32px;font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:#2a2a2a;letter-spacing:1.5px;text-transform:uppercase;}
+.spin{width:28px;height:28px;border:3px solid #1e1e1e;border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── BOOKING SUMMARY CARD ── */
+.bk-summary{
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:16px;
+  flex-shrink:0;
+  padding-top:calc(16px + env(safe-area-inset-top));
+}
+.bk-summary-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.bk-biz{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--white);letter-spacing:-0.2px;}
+.bk-status{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 9px;border-radius:6px;}
+.bk-status.confirmed{background:var(--green-soft);color:var(--green);border:1px solid var(--green-border);}
+.bk-status.cancelled{background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.2);}
+.bk-details{display:flex;gap:16px;font-size:13px;color:var(--light);margin-bottom:12px;}
+.bk-details span strong{color:var(--white);}
+.bk-cancel{
+  background:transparent;border:1px solid var(--border);border-radius:8px;
+  padding:7px 14px;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;
+}
+.bk-cancel:hover{border-color:var(--danger);color:var(--danger);}
+.bk-cancel:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ── ALEX BAR ── */
+.alex-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px 6px;flex-shrink:0;
+}
+.alex-id{display:flex;align-items:center;gap:7px;}
+.alex-pulse{
+  width:8px;height:8px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 0 0 rgba(29,219,126,0.4);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(29,219,126,0.4);}70%{box-shadow:0 0 0 6px rgba(29,219,126,0);}100%{box-shadow:0 0 0 0 rgba(29,219,126,0);}}
+.alex-lbl{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0.3px;}
+.tbp-logo{font-family:'Syne',sans-serif;font-size:10px;font-weight:800;color:#333;letter-spacing:1.5px;text-transform:uppercase;}
+
+/* ── MESSAGES ── */
+.chat-messages{
+  flex:1;overflow-y:auto;
+  padding:12px 16px 8px;
+  display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:thin;scrollbar-color:#1e1e1e transparent;
+}
+.chat-messages::-webkit-scrollbar{width:3px;}
+.chat-messages::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px;}
+
+.chat-msg{max-width:84%;padding:11px 15px;border-radius:16px;font-size:15px;line-height:1.55;word-wrap:break-word;}
+.chat-msg.alex{
+  background:#161616;border:1px solid #202020;
+  color:#ccc;align-self:flex-start;
+  border-radius:4px 16px 16px 16px;
+}
+.chat-msg.user{
+  background:var(--green);color:#000;
+  align-self:flex-end;font-weight:600;
+  border-radius:16px 16px 4px 16px;
+}
+
+.chat-typing{
+  display:flex;gap:5px;padding:11px 15px;
+  background:#161616;border:1px solid #202020;
+  border-radius:4px 16px 16px 16px;
+  width:fit-content;align-self:flex-start;
+}
+.chat-typing span{
+  width:7px;height:7px;background:#444;border-radius:50%;
+  animation:bounce 1.2s infinite;
+}
+.chat-typing span:nth-child(2){animation-delay:0.2s;}
+.chat-typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
+
+/* ── INPUT ROW ── */
+.chat-input-row{
+  padding:12px 16px;
+  padding-bottom:calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid #151515;
+  display:flex;gap:8px;
+  background:var(--bg);
+  flex-shrink:0;
+}
+.chat-input{
+  flex:1;
+  background:#161616;border:1.5px solid #222;
+  border-radius:14px;padding:13px 16px;
+  color:#fff;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:16px;outline:none;
+  transition:border-color 0.15s;
+  -webkit-appearance:none;
+}
+.chat-input:focus{border-color:var(--green);}
+.chat-input::placeholder{color:#3a3a3a;}
+.chat-input:disabled{opacity:0.45;cursor:not-allowed;}
+.chat-send{
+  background:var(--green);color:#000;border:none;
+  border-radius:12px;padding:13px 18px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:800;cursor:pointer;font-size:15px;
+  transition:opacity 0.15s;flex-shrink:0;
+}
+.chat-send:hover{opacity:0.88;}
+.chat-send:disabled{opacity:0.3;cursor:not-allowed;}
+</style>
+</head>
+<body>
+
+<!-- LOADING GATE -->
+<div class="gate" id="gateLoading">
+  <div class="spin"></div>
+  <div class="gate-sub">Loading your booking…</div>
+  <div class="gate-logo">The Booking Plug</div>
+</div>
+
+<!-- NOT FOUND GATE (hidden by default) -->
+<div class="gate" id="gateBlocked" style="display:none;">
+  <div class="gate-icon">🔍</div>
+  <div class="gate-title">We couldn't find that booking.</div>
+  <div class="gate-sub">This link may be invalid or expired. Contact your barber for help.</div>
+  <div class="gate-logo">The Booking Plug</div>
+</div>
+
+<!-- BOOKING SUMMARY -->
+<div class="bk-summary" id="bkSummary" style="display:none;">
+  <div class="bk-summary-top">
+    <div class="bk-biz" id="bkBiz">—</div>
+    <div class="bk-status confirmed" id="bkStatus">confirmed</div>
+  </div>
+  <div class="bk-details">
+    <span>📅 <strong id="bkDate">—</strong></span>
+    <span>🕐 <strong id="bkTime">—</strong></span>
+  </div>
+  <button class="bk-cancel" id="bkCancelBtn" onclick="cancelBooking()">Cancel Booking</button>
+</div>
+
+<!-- ALEX LABEL BAR -->
+<div class="alex-bar">
+  <div class="alex-id">
+    <div class="alex-pulse"></div>
+    <span class="alex-lbl">Alex · AI Booking Assistant</span>
+  </div>
+  <div class="tbp-logo">The Booking Plug</div>
+</div>
+
+<!-- MESSAGES -->
+<div class="chat-messages" id="chatMessages"></div>
+
+<!-- INPUT -->
+<div class="chat-input-row">
+  <input
+    class="chat-input"
+    id="chatInput"
+    placeholder="Type your message…"
+    autocomplete="off"
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"
+  >
+  <button class="chat-send" id="chatSendBtn" onclick="sendChat()">Send</button>
+</div>
+
+<script>
+// ── URL PARAMS ──
+const p     = new URLSearchParams(window.location.search);
+const token = p.get('token');
+
+// ── STATE ──
+let chatHistory = [];
+let booking     = null;
+let client      = null;
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── LOAD BOOKING ──
+async function loadBooking(){
+  if(!token){ showBlocked(); return; }
+  try{
+    const res = await fetch('/api/book?token=' + encodeURIComponent(token));
+    const data = await res.json();
+    if(!res.ok || !data.booking){ showBlocked(); return; }
+    booking = data.booking;
+    client  = data.client || {};
+    renderSummary();
+    document.getElementById('gateLoading').style.display = 'none';
+    document.getElementById('bkSummary').style.display = 'block';
+
+    if(data.messages && data.messages.length){
+      data.messages.forEach(m => {
+        addMsg(m.role === 'assistant' ? 'alex' : 'user', m.content);
+        chatHistory.push({ role: m.role, content: m.content });
+      });
+    } else {
+      const greeting = `Hey ${booking.customer_name.split(' ')[0]}! 👋 I've got your appointment with ${businessName()} on ${booking.appointment_date} at ${booking.appointment_time}. Want to reschedule, or just have a question?`;
+      addMsg('alex', greeting);
+      chatHistory.push({ role: 'assistant', content: greeting });
+      saveMessage('assistant', greeting);
+    }
+    document.getElementById('chatInput').focus();
+  }catch(e){
+    showBlocked();
+  }
+}
+
+function businessName(){
+  return client.owner_name || client.business_name || 'your barber';
+}
+
+function renderSummary(){
+  document.getElementById('bkBiz').textContent  = businessName();
+  document.getElementById('bkDate').textContent = booking.appointment_date;
+  document.getElementById('bkTime').textContent = booking.appointment_time;
+  const statusEl = document.getElementById('bkStatus');
+  statusEl.textContent = booking.status;
+  statusEl.className = 'bk-status ' + (booking.status === 'cancelled' ? 'cancelled' : 'confirmed');
+  document.getElementById('bkCancelBtn').style.display = booking.status === 'cancelled' ? 'none' : 'inline-block';
+}
+
+function showBlocked(){
+  document.getElementById('gateLoading').style.display = 'none';
+  document.getElementById('gateBlocked').style.display = 'flex';
+}
+
+loadBooking();
+
+// ── SYSTEM PROMPT ──
+function systemPrompt(){
+  return `You are Alex, the AI booking assistant for ${businessName()} at The Booking Plug.
+
+This customer (${booking.customer_name}) already has a booking:
+- Date: ${booking.appointment_date}
+- Time: ${booking.appointment_time}
+- Status: ${booking.status}
+
+Help them with this specific booking only. You can:
+- Answer questions about their appointment.
+- Reschedule it if they ask — collect a new DATE and TIME, confirm it back to them in your reply, then append this exact marker as the absolute last line with nothing after it:
+BOOKING_UPDATED:{"date":"YYYY-MM-DD","time":"H:MM AM/PM"}
+- Reassure them if they just want to confirm they're still booked.
+
+Guidelines:
+- Keep every reply to 1-2 sentences MAX. Warm, direct.
+- If they give a vague date (e.g. "tomorrow", "next Friday"), work out the actual calendar date yourself — today is ${new Date().toDateString()}.
+- Only include the BOOKING_UPDATED marker once you have BOTH a new date and a new time clearly confirmed. Never output it more than once per reply.
+- Don't ask for their name, phone, or email again — you already have them.`;
+}
+
+// ── HELPERS ──
+function addMsg(role, text){
+  const wrap = document.getElementById('chatMessages');
+  const div  = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.textContent = text;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function addTyping(){
+  const wrap = document.getElementById('chatMessages');
+  const div  = document.createElement('div');
+  div.className = 'chat-typing';
+  div.id = 'typing';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function removeTyping(){ const t = document.getElementById('typing'); if(t) t.remove(); }
+
+function setBusy(busy){
+  document.getElementById('chatSendBtn').disabled = busy;
+  document.getElementById('chatInput').disabled   = busy;
+}
+
+async function saveMessage(role, content){
+  try{
+    await fetch('/api/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'message', token, role, content })
+    });
+  }catch(_){}
+}
+
+// ── SEND ──
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text  = input.value.trim();
+  if(!text || booking.status === 'cancelled') return;
+  input.value = '';
+  addMsg('user', text);
+  chatHistory.push({role:'user', content:text});
+  saveMessage('user', text);
+  addTyping();
+  setBusy(true);
+
+  try{
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers:{ 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: systemPrompt(),
+        messages: chatHistory
+      })
+    });
+
+    const data  = await res.json();
+    removeTyping();
+    if(!res.ok){ throw new Error(data.error || 'AI request failed.'); }
+    const raw   = data.content?.[0]?.text || "Got it! One moment…";
+    const match = raw.match(/\nBOOKING_UPDATED:(\{[\s\S]*?\})\s*$/);
+    const reply = match ? raw.replace(/\nBOOKING_UPDATED:[\s\S]*$/, '').trim() : raw;
+
+    addMsg('alex', reply);
+    chatHistory.push({role:'assistant', content:reply});
+    saveMessage('assistant', reply);
+
+    if(match){
+      try{
+        const payload = JSON.parse(match[1]);
+        const r = await fetch('/api/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'update', token, appointment_date: payload.date, appointment_time: payload.time })
+        });
+        if(r.ok){
+          booking.appointment_date = payload.date;
+          booking.appointment_time = payload.time;
+          renderSummary();
+        }
+      }catch(_){}
+    }
+  }catch(e){
+    removeTyping();
+    addMsg('alex', "I'm having a quick hiccup — give me a sec and try again! 🙏");
+  }finally{
+    setBusy(false);
+    document.getElementById('chatInput').focus();
+  }
+}
+
+// ── CANCEL ──
+async function cancelBooking(){
+  if(!confirm('Cancel this booking?')) return;
+  const btn = document.getElementById('bkCancelBtn');
+  btn.disabled = true;
+  try{
+    const r = await fetch('/api/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'cancel', token })
+    });
+    if(r.ok){
+      booking.status = 'cancelled';
+      renderSummary();
+      addMsg('alex', "Done — your booking's been cancelled. Reach out anytime if you'd like to book again! 👋");
+    }
+  }finally{
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

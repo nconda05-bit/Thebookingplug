@@ -143,6 +143,11 @@ a{color:inherit;text-decoration:none;}
 .appt-status{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 8px;border-radius:6px;margin-top:4px;}
 .appt-status.confirmed{background:var(--green-soft);color:var(--green);border:1px solid var(--green-border);}
 .appt-status.pending{background:rgba(245,158,11,0.08);color:var(--yellow);border:1px solid rgba(245,158,11,0.2);}
+.appt-transcript{background:var(--card2);border-radius:10px;padding:12px;margin:-4px 0 12px;font-size:12px;color:var(--light);line-height:1.6;}
+.t-msg{margin-bottom:6px;}
+.t-msg:last-child{margin-bottom:0;}
+.t-msg strong{color:var(--white);}
+.t-msg.user strong{color:var(--green);}
 .empty-state{text-align:center;padding:32px 16px;color:var(--muted);font-size:14px;}
 .loading-state{text-align:center;padding:24px;color:var(--muted);font-size:14px;}
 .spin{display:inline-block;width:20px;height:20px;border:2px solid #222;border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px;}
@@ -327,29 +332,32 @@ async function login(){
 }
 
 // ── LOAD PORTAL ──
+let messagesByBooking = {};
+
 async function loadPortal(user){
   show('scPortal');
 
-  // Fetch client record (ilike = case-insensitive exact match; auth lowercases
-  // emails but the admin panel may store them with mixed casing)
-  const { data: client, error } = await sb
-    .from('clients').select('*').ilike('email', user.email).maybeSingle();
+  const { data: { session } } = await sb.auth.getSession();
+  const res = await fetch('/api/portal-data', {
+    headers: { 'Authorization': 'Bearer ' + session.access_token }
+  });
+  const data = await res.json();
 
-  if(error){
+  if(!res.ok){
     await sb.auth.signOut();
     show('scLogin');
-    showError('Could not load your account (' + error.message + '). Please contact The Booking Plug.');
+    showError(data.error === 'No client account found.'
+      ? 'No client account found for ' + user.email + '. Contact The Booking Plug to get set up.'
+      : 'Could not load your account. Please contact The Booking Plug.');
     document.getElementById('loginForm').style.display = 'block';
     return;
   }
 
-  if(!client){
-    await sb.auth.signOut();
-    show('scLogin');
-    showError('No client account found for ' + user.email + '. Contact The Booking Plug to get set up.');
-    document.getElementById('loginForm').style.display = 'block';
-    return;
-  }
+  const { client, bookings, messages } = data;
+  messagesByBooking = {};
+  (messages || []).forEach(m => {
+    (messagesByBooking[m.booking_id] = messagesByBooking[m.booking_id] || []).push(m);
+  });
 
   const displayName = client.owner_name || client.business_name || 'Client';
   document.getElementById('pName').textContent = displayName;
@@ -358,12 +366,6 @@ async function loadPortal(user){
   const url = buildLink(client);
   document.getElementById('linkBox').textContent = url;
   generateQR(url);
-
-  // Fetch bookings — matched by client_id (foreign key)
-  const { data: bookings } = await sb
-    .from('bookings').select('*')
-    .eq('client_id', client.id)
-    .order('appointment_date', { ascending: true });
 
   const all = bookings || [];
   renderStats(all);
@@ -468,10 +470,17 @@ function renderUpcoming(bookings){
     return;
   }
 
-  el.innerHTML = upcoming.map(b => `
-    <div class="appt-row">
+  el.innerHTML = upcoming.map(b => {
+    const msgs = messagesByBooking[b.id] || [];
+    const clickable = msgs.length ? ` onclick="toggleTranscript(${b.id})" style="cursor:pointer;"` : '';
+    const transcript = msgs.length ? `
+      <div class="appt-transcript" id="transcript-${b.id}" style="display:none;">
+        ${msgs.map(m => `<div class="t-msg ${m.role}"><strong>${m.role === 'assistant' ? 'Alex' : esc(b.customer_name || 'Customer')}:</strong> ${esc(m.content)}</div>`).join('')}
+      </div>` : '';
+    return `
+    <div class="appt-row"${clickable}>
       <div>
-        <div class="appt-name">${esc(b.customer_name||'—')}</div>
+        <div class="appt-name">${esc(b.customer_name||'—')}${msgs.length ? ' 💬' : ''}</div>
         <div class="appt-phone">${esc(b.customer_phone||'')}</div>
       </div>
       <div class="appt-right">
@@ -479,8 +488,13 @@ function renderUpcoming(bookings){
         <div class="appt-time">${esc(b.appointment_time||'—')}</div>
         <div class="appt-status ${b.status||'confirmed'}">${b.status||'confirmed'}</div>
       </div>
-    </div>
-  `).join('');
+    </div>${transcript}`;
+  }).join('');
+}
+
+function toggleTranscript(id){
+  const el = document.getElementById('transcript-' + id);
+  if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 function fmtDate(d){

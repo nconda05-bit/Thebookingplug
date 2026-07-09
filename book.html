@@ -250,7 +250,6 @@ body{
 
 <script>
 // ── CONFIG ──
-const ONBOARDING_WEBHOOK = 'https://cashbullysllc.app.n8n.cloud/webhook/client-onboarding';
 const SUPABASE_URL       = 'https://zeumzuwbzagakwokzhpz.supabase.co';
 const SUPABASE_KEY       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpldW16dXdiemFnYWt3b2t6aHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODI4NDUsImV4cCI6MjA5Njg1ODg0NX0.HUYHSdT7mbvNxjayEM_wuuAJCL86ZLifeaVZRc-XLik';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -290,23 +289,24 @@ let chatHistory = [];
 
 const SYSTEM_PROMPT = `You are Alex, the AI booking assistant for ${barberName} at The Booking Plug — a premium barber booking service.
 
-Your goal is to collect these four pieces of information through friendly, natural conversation:
+Your goal is to collect these five pieces of information through friendly, natural conversation:
 1. The client's preferred appointment DATE
 2. The client's preferred appointment TIME
 3. Their FULL NAME
 4. Their PHONE NUMBER
+5. Their EMAIL (so we can send a confirmation with a link to reschedule or ask questions later)
 
 Guidelines:
-- Start by asking for their name, then date and time, then phone. One question per message.
+- Start by asking for their name, then date and time, then phone, then email. One question per message.
 - Keep every reply to 1-2 sentences MAX. Be warm, snappy, and direct.
 - If they give a vague date (e.g. "tomorrow", "next Friday"), work out the actual calendar date yourself — today is ${new Date().toDateString()}.
 - If they give a vague time (e.g. "afternoon"), ask them to narrow it down.
-- Once you have all four confirmed, send a warm closing confirmation message.
+- Once you have all five confirmed, send a warm closing confirmation message.
 
 When you send that final confirmation — and ONLY then — append this exact marker as the absolute last line with nothing after it:
-BOOKING_CONFIRMED:{"name":"FULL_NAME","phone":"PHONE_NUMBER","date":"YYYY-MM-DD","time":"H:MM AM/PM"}
+BOOKING_CONFIRMED:{"name":"FULL_NAME","phone":"PHONE_NUMBER","email":"EMAIL","date":"YYYY-MM-DD","time":"H:MM AM/PM"}
 
-Replace placeholders with real values, using strict YYYY-MM-DD for date and H:MM AM/PM for time. Never output the marker before you have all four pieces. Never output it more than once.`;
+Replace placeholders with real values, using strict YYYY-MM-DD for date and H:MM AM/PM for time. Never output the marker before you have all five pieces. Never output it more than once.`;
 
 // ── TOKEN GATE ──
 let clientId = null;
@@ -340,6 +340,8 @@ function init(){
 checkToken();
 
 // ── HELPERS ──
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 function addMsg(role, text){
   const wrap = document.getElementById('chatMessages');
   const div  = document.createElement('div');
@@ -400,19 +402,26 @@ async function sendChat(){
     if(match){
       try{
         const payload = JSON.parse(match[1]);
-        await sb.from('bookings').insert([{
-          client_id: clientId,
-          customer_name: payload.name,
-          customer_phone: payload.phone,
-          appointment_date: payload.date,
-          appointment_time: payload.time,
-          status: 'confirmed'
-        }]);
-        fetch(ONBOARDING_WEBHOOK, {
+        const bookRes = await fetch('/api/book', {
           method: 'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'create',
+            client_id: clientId,
+            customer_name: payload.name,
+            customer_phone: payload.phone,
+            customer_email: payload.email,
+            appointment_date: payload.date,
+            appointment_time: payload.time
+          })
         });
+        const bookData = await bookRes.json();
+        if(bookRes.ok && bookData.token){
+          const chatLink = window.location.origin + '/chat.html?token=' + bookData.token;
+          document.getElementById('confirmedBanner').innerHTML =
+            `<p>✅ You're booked! We emailed a confirmation to ${esc(payload.email)}.</p>` +
+            `<p style="margin-top:6px;"><a href="${chatLink}" style="color:var(--green);font-weight:800;">Need to reschedule or ask a question? Tap here →</a></p>`;
+        }
       }catch(_){}
       document.getElementById('confirmedBanner').style.display = 'block';
       document.getElementById('chatInput').placeholder = 'Booking confirmed! 🎉';
